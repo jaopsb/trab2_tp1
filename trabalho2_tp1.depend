@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1536672525 source:c:\users\hiarr\documents\projetos\trabalho2_tp1\include\dominios.h
+	<string>
+	<stdexcept>
+
+1539894710 source:c:\users\hiarr\documents\projetos\trabalho2_tp1\main.cpp
+	<iostream>
+	<Testes.h>
+
+1538489899 source:c:\users\hiarr\documents\projetos\trabalho2_tp1\src\dominios.cpp
+	"dominios.h"
+	<stdexcept>
+	<vector>
+	<iostream>
+
+1539894664 source:c:\users\hiarr\documents\projetos\trabalho2_tp1\src\entidades.cpp
+	"Entidades.h"
+
