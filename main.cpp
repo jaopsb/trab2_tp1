@@ -1,18 +1,15 @@
 #include <iostream>
-#include <Testes.h>
-
+#include <Testes.hpp>
+#include "Controladoras.hpp"
 using namespace std;
 
 int main()
 {
-  Teste_Dominios teste_d;
-  Teste_Entidades teste_e;
+  IUAut *ctrl;
 
-  cout << "TESTES DOS DOMINIOS" << endl;
-  teste_d.run();
+  ctrl = new CtrlIUAut();
 
-  cout << "TESTE DAS ENTIDADES" << endl;
-  teste_e.run();
+  ctrl->menu();
 
   return 0;
 }

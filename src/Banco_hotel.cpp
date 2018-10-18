@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <sqlite3.h>
-#include "Usuario.h"
 #include "Retorno.h"
 #include "Banco_hotel.h"
 #include "Acomodacao.h"

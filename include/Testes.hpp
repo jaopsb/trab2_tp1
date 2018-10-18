@@ -1,7 +1,7 @@
 #ifndef Teste_H
 #define Teste_H
 #include <iostream>
-#include <dominios.h>
+#include <dominios.hpp>
 
 using namespace std;
 /****************** Classe Generica Teste *********************/

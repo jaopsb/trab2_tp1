@@ -32,13 +32,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="include/Banco_hotel.h" />
-		<Unit filename="include/Entidades.h" />
-		<Unit filename="include/Testes.h" />
-		<Unit filename="include/dominios.h" />
+		<Unit filename="include/Controladoras.hpp" />
+		<Unit filename="include/Entidades.hpp" />
+		<Unit filename="include/Interfaces.hpp" />
+		<Unit filename="include/Testes.hpp" />
+		<Unit filename="include/dominios.hpp" />
 		<Unit filename="include/sqlite3.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/Banco_hotel.cpp" />
+		<Unit filename="src/Controladoras.cpp" />
 		<Unit filename="src/Entidades.cpp" />
 		<Unit filename="src/Testes.cpp" />
 		<Unit filename="src/dominios.cpp" />

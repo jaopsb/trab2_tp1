@@ -1,6 +1,6 @@
 #ifndef ENTIDADES_H
 #define ENTIDADES_H
-#include <dominios.h>
+#include <dominios.hpp>
 
 class Usuario
 {

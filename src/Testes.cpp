@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdexcept>
-#include "dominios.h"
-#include "Entidades.h"
-#include "Testes.h"
+#include "dominios.hpp"
+#include "Entidades.hpp"
+#include "Testes.hpp"
 
 using namespace std;
 

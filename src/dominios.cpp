@@ -1,4 +1,4 @@
-#include "dominios.h"
+#include "dominios.hpp"
 #include <stdexcept>
 #include <vector>
 #include <iostream>
