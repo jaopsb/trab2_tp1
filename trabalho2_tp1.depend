@@ -88,3 +88,129 @@
 	"dominios.hpp"
 	"Controladoras.hpp"
 
+1540342624 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\dominios.cpp
+	"dominios.hpp"
+	<stdexcept>
+	<vector>
+	<iostream>
+
+1540342623 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\entidades.cpp
+	"Entidades.hpp"
+
+1539998049 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\sqlite3.c
+	"sqlite3.h"
+	"config.h"
+	<vxWorks.h>
+	<pthread.h>
+	"mingw.h"
+	"_mingw.h"
+	<stdarg.h>
+	<stdint.h>
+	<inttypes.h>
+	<intrin.h>
+	<cmnintrin.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+	<stddef.h>
+	<TargetConditionals.h>
+	<ctype.h>
+	<time.h>
+	<sys/sysctl.h>
+	<malloc/malloc.h>
+	<libkern/OSAtomic.h>
+	<malloc.h>
+	<pthread.h>
+	"windows.h"
+	<sys/cygwin.h>
+	<errno.h>
+	<process.h>
+	<math.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<fcntl.h>
+	<sys/ioctl.h>
+	<unistd.h>
+	<sys/time.h>
+	<errno.h>
+	<sys/mman.h>
+	<sys/file.h>
+	<sys/param.h>
+	<semaphore.h>
+	<limits.h>
+	<sys/mount.h>
+	<utime.h>
+	<sys/dcmd_blk.h>
+	<sys/statvfs.h>
+	<dlfcn.h>
+	"sqlite_tcl.h"
+	"tcl.h"
+	"sqlite3rtree.h"
+	<unicode/utypes.h>
+	<unicode/uregex.h>
+	<unicode/ustring.h>
+	<unicode/ucol.h>
+	<unicode/ubrk.h>
+	<unicode/utf16.h>
+	<ctype.h>
+	<math.h>
+
+1539998049 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\testes.cpp
+	<iostream>
+	<stdexcept>
+	"dominios.hpp"
+	"Entidades.hpp"
+	"Testes.hpp"
+
+1540478887 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
+	<iostream>
+	<Testes.hpp>
+	"Controladoras.hpp"
+	"Interfaces.hpp"
+	<stdexcept>
+	<string>
+
+1540477801 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\controladoras.cpp
+	<iostream>
+	<sqlite3.h>
+	<vector>
+	"dominios.hpp"
+	"Controladoras.hpp"
+
+1539998049 c:\users\hiarr\documents\projetos\trab2_tp1\include\testes.hpp
+	<iostream>
+	<dominios.hpp>
+
+1539998049 c:\users\hiarr\documents\projetos\trab2_tp1\include\dominios.hpp
+	<string>
+	<stdexcept>
+
+1540478928 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
+	"Interfaces.hpp"
+	"dominios.hpp"
+	<sqlite3.h>
+	<stdexcept>
+	<iostream>
+	<cstdlib>
+
+1540477946 c:\users\hiarr\documents\projetos\trab2_tp1\include\interfaces.hpp
+	"dominios.hpp"
+
+1539998049 c:\users\hiarr\documents\projetos\trab2_tp1\include\sqlite3.h
+	<stdarg.h>
+
+1539998049 c:\users\hiarr\documents\projetos\trab2_tp1\include\entidades.hpp
+	<dominios.hpp>
+
+1540345382 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\name.cpp
+	"name.h"
+
+1540345382 c:\users\hiarr\documents\projetos\trab2_tp1\include\name.h
+
+1540478453 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\comandos.cpp
+	"Comandos.h"
+
+1540478423 c:\users\hiarr\documents\projetos\trab2_tp1\include\comandos.h
+	"Interfaces.hpp"
+
