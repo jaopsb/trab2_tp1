@@ -5,7 +5,7 @@
 #include "Controladoras.hpp"
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
-char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS 'USUARIO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`LOGIN` TEXT NOT NULL, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL ); ";
+char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS 'USUARIO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`IDENTIFICADOR` TEXT NOT NULL, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL ); ";
 char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `tipo` INTEGER NOT NULL, `capacidade` INTEGER NOT NULL, `cidade` TEXT NOT NULL, `estado` INTEGER NOT NULL, `diaria` REAL NOT NULL );";
 char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT, `NUMERO` TEXT NOT NULL, `AGENDA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
@@ -99,7 +99,7 @@ bool CtrlServAut::init_banco()
   catch (char *msg)
   {
     cout << msg << endl;
-    sqlite3_free(msg);
+    delete msg;
     resultado = false;
   }
 
@@ -133,16 +133,17 @@ bool CtrlServAut::autenticar(Identificador &id, Senha &senha)
 }
 /*************CONTROLADORA DE SERVICO - AUTENTICACAO********/
 /*************CONTROLADORA DE INTEFACE DE USUARIO - MENU ******/
+CtrlServMenu::CtrlServMenu()
+{
+  identificador = new Identificador();
+  senha = new Senha();
+}
 void CtrlIUMenu::menu()
 {
   int resp = 0;
 
-  identificador = new Identificador();
-  senha = new Senha();
-
   while (resp != 5)
   {
-
 
     cout << "Sistema de Hospedagem 2.0" << endl;
     cout << "login     - " << LOGIN << endl;
@@ -156,23 +157,184 @@ void CtrlIUMenu::menu()
     switch (resp)
     {
     case LOGIN:
-      cout << "login" << endl;
+      CtrlIUMenu::login();
       break;
     case REGISTRAR:
-      cout << "registrar" << endl;
+      CtrlIUMenu::registrar();
       break;
     }
   }
 }
 
 void CtrlIUMenu::login()
-(
- bool fim = false;
- string id,snh;
+{
+  bool fim = false;
+  bool resultado;
+  string id, snh;
+  char resp;
 
- cout << "login"<< endl;
- cout << "identificador:";
- cin >> id;
+  identificador = new Identificador();
+  senha = new Senha();
 
-)
-/*************CONTROLADORA DE INTEFACE DE USUARIO - MENU ******/
+  while (!fim)
+  {
+    try
+    {
+      cout << "login" << endl;
+      cout << "Identificador:";
+      cin >> id;
+      cout << "Senha:";
+      cin >> snh;
+
+      identificador->set_identificador(id);
+      senha->set_senha(snh);
+      fim = true;
+    }
+    catch (const invalid_argument &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Tentar novamente? (s/S|n/N)";
+      cin >> resp;
+      if (resp == 'n' || resp == 'N')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+void CtrlIUMenu::registrar()
+{
+  bool fim = false;
+  string nm, id, snh;
+  char resp;
+
+  nome = new Nome();
+  senha = new Senha();
+  identificador = new Identificador();
+
+  while (!fim)
+  {
+    try
+    {
+      cout << "Registrar" << endl;
+      cout << "Nome: ";
+      getchar();
+      getline(cin, nm);
+      cout << "Identificador (5 caracteres):";
+      cin >> id;
+      cout << "Senha: (8 caracteres, pelo menos um maiusculo, 1 numero e 1 simbolo):" << endl;
+      cin >> snh;
+
+      nome->set_nome(nm);
+      identificador->set_identificador(id);
+      senha->set_senha(snh);
+
+      //se tudo certo, insere no banco
+
+      ctrlServMenu->registrar(*nome, *identificador, *senha);
+      fim = true;
+    }
+    catch (const invalid_argument &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Tentar de novo? (s/S|n/N):";
+      cin >> resp;
+
+      if (resp == 'n' || resp == 'N')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+/*************CONTROLADORA DE INTEFACE DE USUARIO - MENU *******/
+/*************CONTROLADORA DE SERVICOS DE USUARIO - REGISTRAR***/
+void CtrlIUMenu::setCtrlServMenu(IServMenu *ctrl)
+{
+  ctrlServMenu = ctrl;
+}
+/*
+    FUNCAO Registrar
+    Verifica se o banco foi criado,
+    cria o comando SQL (stmt) que sera executado
+    e executa a operacao
+*/
+void CtrlServMenu::registrar(Nome &n, Identificador &id, Senha &sn)
+{
+  int rc;
+  sqlite3_stmt *stmt;
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  if (!CtrlServ::bd_criado()) CtrlServ::init_banco();
+
+  rc = sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  string SQL_STMT_INSERT_USUARIO = "INSERT INTO USUARIO (nome,identificador,senha) VALUES (";
+  SQL_STMT_INSERT_USUARIO += "\"" + n.get_nome() + "\",";
+  SQL_STMT_INSERT_USUARIO += "\"" + id.get_identificador() + "\",";
+  SQL_STMT_INSERT_USUARIO += "\"" + sn.get_senha() + "\");";
+
+  cout <<"stmt - "<< SQL_STMT_INSERT_USUARIO << endl;
+
+  rc = sqlite3_prepare_v2(banco, SQL_STMT_INSERT_USUARIO.c_str(), -2, &stmt, NULL);
+
+    rc = sqlite3_step(stmt);
+  if (rc != 0 || rc != 101)
+    throw invalid_argument("Usuario ja cadastrado!");
+
+  sqlite3_finalize(stmt);
+
+  sqlite3_close(banco);
+};
+
+/*************CONTROLADORA DE SERVICOS DE USUARIO - REGISTRAR***/
+/****CONTROLADORA DE SERVICOS BASE ********/
+
+bool CtrlServ::banco_criado = false;
+
+bool CtrlServ::init_banco()
+{
+  bool resultado = true;
+  sqlite3_stmt *stmt;
+  vector<char *> sql;
+
+  if (!CtrlServ::banco_criado)
+  {
+
+    sql.push_back(SQL_STMT_CREATE_USUARIO);
+    sql.push_back(SQL_STMT_CREATE_ACOMODACAO);
+    sql.push_back(SQL_STMT_CREATE_CARTAO);
+    sql.push_back(SQL_STMT_CREATE_CONTACORRENTE);
+    sql.push_back(SQL_STMT_CREATE_RESERVA);
+
+    //inicia o banco
+    if (sqlite3_open(NOME_BD, &banco) != SQLITE_OK)
+    {
+      throw sqlite3_errmsg(banco);
+    }
+
+    try
+    {
+      //inicia o banco de dados com as tabelas
+      for (int i = 0; i < sql.size(); i++)
+      {
+        sqlite3_prepare_v2(banco, sql.at(i), -2, &stmt, NULL);
+
+        if (sqlite3_step(stmt) == SQLITE_ERROR)
+          throw sqlite3_errmsg(banco);
+      }
+    }
+    catch (char *msg)
+    {
+      cout << msg << endl;
+      sqlite3_free(msg);
+      resultado = false;
+    }
+
+    sqlite3_close(banco);
+    banco_criado = true;
+  } //banco ja criado
+  return resultado;
+}
+/****CONTROLADORA DE SERVICOS BASE ********/

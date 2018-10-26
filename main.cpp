@@ -8,8 +8,7 @@
 using namespace std;
 
 int main()
-{
-    /*
+{/*
     CtrlIUAut* ctrl;
     ctrl = new CtrlIUAut();
 
@@ -26,11 +25,23 @@ int main()
     delete ctrl;
     delete ctrliserv;
     */
+    try{
+    CtrlServ *serv = new CtrlServ();
+    serv->init_banco();
+    delete serv;
+
     CtrlIUMenu* menu;
     menu = new CtrlIUMenu();
+
+    IServMenu* ctrl = new CtrlServMenu();
+
+    menu->setCtrlServMenu(ctrl);
 
     menu->menu();
 
     delete menu;
+    delete ctrl;
+    }catch(const exception &ex){
+    cout << ex.what() << endl;}
   return 0;
 }
