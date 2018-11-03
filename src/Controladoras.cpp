@@ -1,16 +1,44 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <vector>
+#include <string>
 #include "dominios.hpp"
+#include "Entidades.hpp"
 #include "Controladoras.hpp"
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
-char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS 'USUARIO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`IDENTIFICADOR` TEXT NOT NULL, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL ); ";
+char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
 char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `tipo` INTEGER NOT NULL, `capacidade` INTEGER NOT NULL, `cidade` TEXT NOT NULL, `estado` INTEGER NOT NULL, `diaria` REAL NOT NULL );";
 char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT, `NUMERO` TEXT NOT NULL, `AGENDA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
 char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
 /************ SCRIPTS CRIACAO DO BANCO *************/
+
+/***************FUNCOES AUXILIARES************/
+bool trata_retorno(int rc)
+{
+  switch (rc)
+  {
+  case SQLITE_DONE:
+  case SQLITE_ROW:
+case SQLITE_OK:
+    return true;
+    break;
+  case SQLITE_CONSTRAINT:
+    throw invalid_argument("Identificador ja utilizado!");
+    break;
+  case SQLITE_ERROR:
+    throw invalid_argument("Erro no servi�o!");
+    break;
+
+  default:
+
+    throw invalid_argument(to_string(rc));
+
+    break;
+  }
+}
+/***************FUNCOES AUXILIARES************/
 /*************CONTROLADORA DE INTERFACE DE USUARIO - AUTENTICACAO********/
 
 CtrlIUAut::CtrlIUAut()
@@ -168,11 +196,10 @@ void CtrlIUMenu::menu()
 
 void CtrlIUMenu::login()
 {
-  bool fim = false;
-  bool resultado;
-  string id, snh;
   char resp;
-
+  string id, snh;
+  bool resultado;
+  bool fim = false;
   identificador = new Identificador();
   senha = new Senha();
 
@@ -188,6 +215,9 @@ void CtrlIUMenu::login()
 
       identificador->set_identificador(id);
       senha->set_senha(snh);
+
+      usu = ctrlServMenu->login(*identificador, *senha);
+
       fim = true;
     }
     catch (const invalid_argument &ia)
@@ -232,7 +262,10 @@ void CtrlIUMenu::registrar()
 
       //se tudo certo, insere no banco
 
-      ctrlServMenu->registrar(*nome, *identificador, *senha);
+      if (ctrlServMenu->registrar(*nome, *identificador, *senha))
+      {
+        cout << "Registrado com sucesso! Pressione enter para voltar." << getchar();
+      }
       fim = true;
     }
     catch (const invalid_argument &ia)
@@ -260,35 +293,86 @@ void CtrlIUMenu::setCtrlServMenu(IServMenu *ctrl)
     cria o comando SQL (stmt) que sera executado
     e executa a operacao
 */
-void CtrlServMenu::registrar(Nome &n, Identificador &id, Senha &sn)
+bool CtrlServMenu::registrar(Nome &n, Identificador &id, Senha &sn)
 {
   int rc;
+  bool resultado = false;
   sqlite3_stmt *stmt;
   sqlite3 *banco = CtrlServ::get_banco();
 
-  if (!CtrlServ::bd_criado()) CtrlServ::init_banco();
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
 
   rc = sqlite3_open(CtrlServ::get_nome_banco(), &banco);
 
+  //TODO: criar funcao para criacao de metodos gerais
   string SQL_STMT_INSERT_USUARIO = "INSERT INTO USUARIO (nome,identificador,senha) VALUES (";
   SQL_STMT_INSERT_USUARIO += "\"" + n.get_nome() + "\",";
   SQL_STMT_INSERT_USUARIO += "\"" + id.get_identificador() + "\",";
   SQL_STMT_INSERT_USUARIO += "\"" + sn.get_senha() + "\");";
 
-  cout <<"stmt - "<< SQL_STMT_INSERT_USUARIO << endl;
+  sqlite3_prepare_v2(banco, SQL_STMT_INSERT_USUARIO.c_str(), -2, &stmt, NULL);
 
-  rc = sqlite3_prepare_v2(banco, SQL_STMT_INSERT_USUARIO.c_str(), -2, &stmt, NULL);
+  rc = sqlite3_step(stmt);
 
-    rc = sqlite3_step(stmt);
-  if (rc != 0 || rc != 101)
-    throw invalid_argument("Usuario ja cadastrado!");
+  //verifica se a execucao foi feita com sucesso
+  resultado = trata_retorno(rc);
 
   sqlite3_finalize(stmt);
-
   sqlite3_close(banco);
+
+  return resultado;
 };
 
 /*************CONTROLADORA DE SERVICOS DE USUARIO - REGISTRAR***/
+/*************CONTROLADORA DE SERVICOS DE USUARIO - LOGIN *****/
+Usuario CtrlServMenu::login(Identificador &id, Senha &sn)
+{
+  int rc;
+Usuario usu;
+  sqlite3_stmt *stmt;
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
+
+  rc = sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  string SQL_STMT_SELECT_USUARIO = "SELECT * FROM USUARIO WHERE ";
+  SQL_STMT_SELECT_USUARIO += "identificador = '" + id.get_identificador() + "'";
+  SQL_STMT_SELECT_USUARIO += " AND ";
+  SQL_STMT_SELECT_USUARIO += "senha = '" + sn.get_senha() + "';";
+
+  sqlite3_prepare_v2(banco, SQL_STMT_SELECT_USUARIO.c_str(), -2, &stmt, NULL);
+
+  rc = sqlite3_step(stmt);
+
+  if (trata_retorno(rc))
+  {
+    const char* id = reinterpret_cast<const char*>(sqlite3_column_text(stmt,1));
+    const char* nome = reinterpret_cast<const char*>(sqlite3_column_text(stmt,2));
+    const char* senha = reinterpret_cast<const char*>(sqlite3_column_text(stmt,3));
+
+    cout << id << endl;
+    cout << nome << endl;
+    cout << senha << endl;
+
+    string id_tp = "jopsb";
+    string nome_tp = "joao pedro";
+    string senha_tp = "Senha123!";
+
+    //usu(id_tp,nome_tp,senha_tp);
+
+    cout << usu.get_identificador() << endl;
+    cout << usu.get_nome() << endl;
+    cout << usu.get_senha() << endl;
+  }
+
+  sqlite3_finalize(stmt);
+  sqlite3_close(banco);
+  return usu;
+}
+/*************CONTROLADORA DE SERVICOS DE USUARIO - LOGIN *****/
 /****CONTROLADORA DE SERVICOS BASE ********/
 
 bool CtrlServ::banco_criado = false;

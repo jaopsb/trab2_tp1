@@ -7,6 +7,15 @@ Usuario::Usuario(string id, string nome, string senha)
     set_senha(senha);
 }
 
+Usuario::Usuario(const char* id,const char* nome, const char* senha)
+{
+    set_identificador(id);
+    set_nome(nome);
+    set_senha(senha);
+}
+
+Usuario::Usuario(){};
+
 Acomodacao::Acomodacao(int capacidade, string cidade, string data_in, string data_fim, float diaria, string estado, string id, int tipo)
 {
     set_capacidade(capacidade);

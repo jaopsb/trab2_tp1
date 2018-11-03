@@ -8,23 +8,8 @@
 using namespace std;
 
 int main()
-{/*
-    CtrlIUAut* ctrl;
-    ctrl = new CtrlIUAut();
-
-    IServAut* ctrliserv = new CtrlServAut();
-
-    ctrl->setCtrlServAut(ctrliserv);
-
-    if(ctrl->autenticar()){
-        cout << "SUCESSO" << endl;
-    }else {
-    cout << "ERRO"<< endl;
-    }
-
-    delete ctrl;
-    delete ctrliserv;
-    */
+{
+    Usuario  usu;
     try{
     CtrlServ *serv = new CtrlServ();
     serv->init_banco();
@@ -38,6 +23,11 @@ int main()
     menu->setCtrlServMenu(ctrl);
 
     menu->menu();
+
+    usu = menu->get_usuario_logado();
+
+    cout << usu.get_identificador() << ', ' <<
+    usu.get_nome() << ', ' << usu.get_senha() << endl;
 
     delete menu;
     delete ctrl;

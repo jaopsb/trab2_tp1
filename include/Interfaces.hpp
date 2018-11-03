@@ -27,7 +27,8 @@ public:
 class IServMenu
 {
 public:
-  virtual void registrar(Nome &, Identificador &, Senha &) = 0;
+  virtual bool registrar(Nome &, Identificador &, Senha &) = 0;
+  virtual Usuario login(Identificador &, Senha &) = 0;
   virtual ~IServMenu() {}
 };
 

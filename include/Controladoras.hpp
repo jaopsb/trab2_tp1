@@ -55,6 +55,8 @@ private:
   Senha *senha;
   Nome *nome;
 
+  Usuario usu;
+
   IServMenu *ctrlServMenu;
 
   void login();
@@ -63,6 +65,7 @@ private:
 public:
   void menu();
   void setCtrlServMenu(IServMenu *);
+  Usuario get_usuario_logado(){return usu;};
 };
 
 /*
@@ -83,24 +86,6 @@ bool bd_criado(){return banco_criado;}
   bool init_banco();
 };
 
-class CtrlServLogin : public IServLogin, CtrlServ
-{
-private:
-  char *NOME_BD = "hotel.db";
-
-  Identificador *identificador;
-  Senha *senha;
-  sqlite3_stmt *stmt;
-  sqlite3 *banco;
-
-  void init_banco();
-  void buscarUsuario();
-
-public:
-  CtrlServLogin();
-  Usuario login(Identificador &, Senha &);
-};
-
 class CtrlServMenu : public IServMenu, CtrlServ
 {
 private:
@@ -109,7 +94,8 @@ private:
 
 public:
   CtrlServMenu();
-  void registrar(Nome &, Identificador &, Senha &);
+  bool registrar(Nome &, Identificador &, Senha &);
+  Usuario login(Identificador &,Senha &);
 };
 
 #endif // CONTROLADORAS_

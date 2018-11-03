@@ -6,6 +6,8 @@ class Usuario
 {
 public:
   Usuario(string, string, string);
+  Usuario(const char*,const char*, const char*);
+  Usuario();
   void set_nome(string);
   string get_nome() { return nome.get_nome(); };
 
