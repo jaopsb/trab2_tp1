@@ -1,10 +1,23 @@
 #ifndef COMANDOS_H
 #define COMANDOS_H
-#include "Interfaces.hpp"
-class CmdIUPesquisar
+#include "dominios.hpp";
+#include "Entidades.hpp";
+
+class Comandos
 {
 public:
-    void executar(IServAut&);
+  Comandos();
+  virtual ~Comandos();
+
+protected:
+private:
+};
+
+class CmdLogin
+{
+public:
+  CmdLogin();
+  Usuario login(Identificador &, Senha &);
 };
 
 #endif // COMANDOS_H

@@ -9,29 +9,36 @@ using namespace std;
 
 int main()
 {
-    Usuario  usu;
-    try{
+  Usuario *usu;
+  try
+  {
+    //inciializacao do banco
     CtrlServ *serv = new CtrlServ();
     serv->init_banco();
-    delete serv;
+    delete serv; //servico feito
 
-    CtrlIUMenu* menu;
-    menu = new CtrlIUMenu();
+    //iniciando sistema
+    CtrlIUAut *iuAut = new CtrlIUAut();
+    IServAut *ctrlAut = new CtrlServAut();
 
-    IServMenu* ctrl = new CtrlServMenu();
+    iuAut->setCtrlServAut(ctrlAut);
 
-    menu->setCtrlServMenu(ctrl);
+    cout << "autenticacao" << endl;
+    //autenticando acesso
+    RetornoLogin retorno = iuAut->autenticar();
 
-    menu->menu();
+    if (!retorno.get_resultado())
+      throw runtime_error("Programa finalizado");
 
-    usu = menu->get_usuario_logado();
+    usu = retorno.get_usuario();
 
-    cout << usu.get_identificador() << ', ' <<
-    usu.get_nome() << ', ' << usu.get_senha() << endl;
+    //IUUser
+    CtrlIUUsu *ctrUsu = new CtrlIUUsu();
 
-    delete menu;
-    delete ctrl;
-    }catch(const exception &ex){
-    cout << ex.what() << endl;}
+  }
+  catch (const exception &ex)
+  {
+    cout << ex.what() << endl;
+  }
   return 0;
 }

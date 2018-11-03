@@ -6,7 +6,7 @@ class Usuario
 {
 public:
   Usuario(string, string, string);
-  Usuario(const char*,const char*, const char*);
+  Usuario(const char *, const char *, const char *);
   Usuario();
   void set_nome(string);
   string get_nome() { return nome.get_nome(); };
@@ -94,6 +94,26 @@ private:
   Numero_Conta_Corrente numero;
   Agencia agencia;
   Banco banco;
+};
+
+class RetornoLogin
+{
+private:
+  Usuario *usu;
+  bool resultado;
+
+public:
+  Usuario *get_usuario() { return usu; };
+  bool get_resultado() { return resultado; };
+
+  void set_usuario(Usuario *u)
+  {
+    this->usu = u;
+  };
+  void set_resultado(bool r)
+  {
+    this->resultado = r;
+  };
 };
 
 #endif // ENTIDADES_H
