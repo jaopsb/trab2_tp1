@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include <vector>
 #include <string>
+#include "Comandos.h"
 #include "dominios.hpp"
 #include "Entidades.hpp"
 #include "Controladoras.hpp"
@@ -98,6 +99,66 @@ RetornoLogin CtrlIUAut::autenticar()
 }
 
 /*************CONTROLADORA DE INTERFACE DE USUARIO - AUTENTICACAO********/
+
+/************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
+
+void CtrlIUUsu::setCtrlServUsu(CtrlServUsu *serv)
+{
+  ctrl = serv;
+}
+
+void CtrlIUUsu::executa()
+{
+  ctrl = new CtrlServUsu();
+
+  int opt = 0;
+  while (opt != 5)
+  {
+    cout << "Painel Usuario" << endl;
+    cout << "Registrar Usuario - " << CtrlIUUsu::REGISTRAR << endl;
+    cout << "Editar Dados      - " << CtrlIUUsu::EDIT_USU << endl;
+    cout << "Sair              - 5" << endl;
+    cout << "Selecione a opcao: ";
+    cin >> opt;
+
+    switch (opt)
+    {
+    case CtrlIUUsu::EDIT_USU:
+      CtrlIUUsu::editarUsuario();
+      break;
+    case CtrlIUUsu::REGISTRAR:
+      break;
+    default:
+      cout << "NENHUMA RESPOSTA" << endl;
+      break;
+    }
+  }
+}
+
+CtrlIUUsu::CtrlIUUsu(string id, string sn)
+{
+  identificador = new Identificador();
+  identificador->set_identificador(id);
+  senha = new Senha();
+  senha->set_senha(sn);
+}
+
+void CtrlIUUsu::editarUsuario()
+{
+  cmd = new CmdBuscarUsuario(identificador, senha);
+  cmd->executar();
+}
+
+void CtrlServUsu::buscarUsuario()
+{
+  cout << "Serv - Editar Usuario" << endl;
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
+
+  cout << "OK" << endl;
+}
+
+/************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
 /*************CONTROLADORA DE SERVICO - AUTENTICACAO********/
 bool CtrlServAut::init_banco()
@@ -230,3 +291,24 @@ bool CtrlServ::init_banco()
   return resultado;
 }
 /****CONTROLADORA DE SERVICOS BASE ********/
+
+int CtrlServ::executa(string sql)
+{
+  int rc;
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
+
+  rc = sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  if (trata_retorno(rc))
+  {
+
+    sqlite3_prepare_v2(banco, sql.c_str(), -2, &stmt, NULL);
+
+    rc = sqlite3_step(stmt);
+  }
+
+  return rc;
+}

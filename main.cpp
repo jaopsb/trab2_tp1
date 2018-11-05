@@ -33,8 +33,9 @@ int main()
     usu = retorno.get_usuario();
 
     //IUUser
-    CtrlIUUsu *ctrUsu = new CtrlIUUsu();
+    CtrlIUUsu *ctrUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
 
+    ctrUsu->executa();
   }
   catch (const exception &ex)
   {

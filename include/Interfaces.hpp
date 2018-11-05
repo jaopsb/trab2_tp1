@@ -1,8 +1,7 @@
 #ifndef INTERFACES_H
 #define INTERFACES_H
-#include "dominios.hpp";
-#include "Entidades.hpp";
-#include "Controladoras.hpp";
+#include "dominios.hpp"
+#include "Entidades.hpp"
 #include <sqlite3.h>
 
 class IUAut
@@ -25,5 +24,15 @@ public:
   virtual Usuario Login(Identificador &, Senha &) = 0;
 };
 
-//INTERFACES COMANDOS (?)
+class IServUsu
+{
+public:
+  virtual Usuario buscarUsuario(string, string) = 0;
+};
+
+class ICmd
+{
+public:
+  virtual void executar() = 0;
+};
 #endif //INTERFACES_H

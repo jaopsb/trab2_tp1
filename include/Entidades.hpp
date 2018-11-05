@@ -96,23 +96,30 @@ private:
   Banco banco;
 };
 
-class RetornoLogin
+class RetornoBase
 {
 private:
-  Usuario *usu;
   bool resultado;
 
 public:
-  Usuario *get_usuario() { return usu; };
   bool get_resultado() { return resultado; };
+  void set_resultado(bool r)
+  {
+    this->resultado = r;
+  };
+};
+
+class RetornoLogin : public RetornoBase
+{
+private:
+  Usuario *usu;
+
+public:
+  Usuario *get_usuario() { return usu; };
 
   void set_usuario(Usuario *u)
   {
     this->usu = u;
-  };
-  void set_resultado(bool r)
-  {
-    this->resultado = r;
   };
 };
 
