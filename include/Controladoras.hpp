@@ -27,6 +27,7 @@ public:
   sqlite3 *get_banco() { return banco; }
   sqlite3_stmt *get_stmt() { return stmt; }
   int executa(string);
+  void finaliza();
   bool init_banco();
 };
 
@@ -54,7 +55,7 @@ private:
   sqlite3_stmt *stmt;
   sqlite3 *banco;
 
-    bool init_banco();
+  bool init_banco();
 
 public:
   Usuario *autenticar(Identificador &, Senha &);
@@ -67,6 +68,7 @@ public:
   Cartao_de_Credito *buscar_cartao(string);
   void cadastrarUsuario(string, string, string);
   bool existeUsuario(string);
+  void deletarUsuario(string, string);
 };
 
 class CtrlIUUsu
@@ -76,14 +78,14 @@ private:
   Senha *senha;
   CtrlServUsu *ctrl;
   void cadastrar();
+  void deletar();
+  void editar();
 
 public:
   CtrlIUUsu(string, string);
   const static int REGISTRAR = 1;
   const static int DEL_USU = 2;
-  const static int CRIA_ACOM = 3;
-  const static int RESERVA = 4;
-  const static int EDIT_ACOM = 5;
+  const static int EDIT_USU = 3;
 
   void executa();
 

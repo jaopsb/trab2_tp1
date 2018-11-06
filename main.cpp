@@ -8,9 +8,19 @@
 
 using namespace std;
 
+const static int USUARIO = 1;
+const static int ACOMODACAO = 2;
+const static int RESERVA = 3;
+const static int SAIR = 5;
+
 int main()
 {
+  bool fim = false;
+  int opt;
   Usuario *usu;
+
+  CtrlIUUsu *ctrlIUUsu;
+
   try
   {
     //inciializacao do banco
@@ -33,11 +43,39 @@ int main()
 
     usu = retorno.get_usuario();
 
-    //IUUser
-    CtrlIUUsu *ctrUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
-    CtrlServUsu *ctrl = new CtrlServUsuStub();
-    ctrUsu->setCtrlServUsu(ctrl);
-    ctrUsu->executa();
+    while (!fim)
+    {
+      system("cls");
+      cout << "Gerenciar Usuario     - " << USUARIO << endl;
+      cout << "Gerenciar Acomodacao  - " << ACOMODACAO << endl;
+      cout << "Sair                  - " << SAIR << endl;
+      cin >> opt;
+
+      switch (opt)
+      {
+      case 1:
+      {
+
+        //IUUser
+        ctrlIUUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
+        CtrlServUsu *ctrl = new CtrlServUsu();
+        ctrlIUUsu->setCtrlServUsu(ctrl);
+        ctrlIUUsu->executa();
+        break;
+      }
+      case 2:
+      {
+
+        cout << "Ainda nao" << endl;
+        break;
+      }
+      case 5:
+      {
+        fim = true;
+        break;
+      }
+      }
+    }
   }
   catch (const exception &ex)
   {

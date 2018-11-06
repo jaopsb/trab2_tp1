@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <typeinfo>
 #include "dominios.hpp"
 #include "Entidades.hpp"
 #include "Controladoras.hpp"
@@ -120,6 +121,12 @@ int CtrlServ::executa(string sql)
   return rc;
 }
 
+void CtrlServ::finaliza()
+{
+  sqlite3_finalize(stmt);
+  sqlite3_close(banco);
+}
+
 /************* CONTROLADORA DE SERVICOS *************/
 
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
@@ -136,9 +143,11 @@ void CtrlIUUsu::executa()
   int opt = 0;
   while (opt != 5)
   {
-    cout << "Painel Usuario" << endl;
+    system("cls");
+    cout << "Painel Usuario - " << identificador->get_identificador() << endl;
     cout << "Cadastrar Usuario    - " << CtrlIUUsu::REGISTRAR << endl;
     cout << "Remover Usuario      - " << CtrlIUUsu::DEL_USU << endl;
+    cout << "Editar dados         - " << CtrlIUUsu::EDIT_USU << endl;
     cout << "Sair                 - 5" << endl;
     cout << "Selecione a opcao: ";
     cin >> opt;
@@ -146,12 +155,15 @@ void CtrlIUUsu::executa()
     switch (opt)
     {
     case CtrlIUUsu::DEL_USU:
+      CtrlIUUsu::deletar();
       break;
     case CtrlIUUsu::REGISTRAR:
       CtrlIUUsu::cadastrar();
       break;
+    case CtrlIUUsu::EDIT_USU:
+      CtrlIUUsu::editar();
+      break;
     default:
-      cout << "NENHUMA RESPOSTA" << endl;
       break;
     }
   }
@@ -163,6 +175,30 @@ CtrlIUUsu::CtrlIUUsu(string id, string sn)
   identificador->set_identificador(id);
   senha = new Senha();
   senha->set_senha(sn);
+}
+
+void CtrlIUUsu::editar()
+{
+  bool fim = false;
+  char resp;
+
+  while (!fim)
+  {
+    try
+    {
+      //buscar dados do usuario
+    }
+    catch (const invalid_argument &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
 }
 
 void CtrlIUUsu::cadastrar()
@@ -188,8 +224,23 @@ void CtrlIUUsu::cadastrar()
       cout << "Senha:";
       cin >> senha;
       sn.set_senha(senha);
-      ctrl->cadastrarUsuario(nome, identificador, senha);
-      cout << "USUARIO CADASTRADO!" << endl;
+
+      do
+      {
+        cout << "Confirmar cadastro? (s/S/n/N)" << endl
+             << "Nome: " << n.get_nome() << "\t"
+             << "identificador:" << id.get_identificador() << endl;
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->cadastrarUsuario(identificador, nome, senha);
+        cout << "Usuario cadastrado, pressione enter para retornar ao menu" << endl;
+        getchar();
+        getchar();
+      }
+      fim = true;
     }
     catch (const invalid_argument &ia)
     {
@@ -203,6 +254,74 @@ void CtrlIUUsu::cadastrar()
       }
     }
   }
+}
+
+void CtrlIUUsu::deletar()
+{
+  bool fim = false;
+  char resp;
+  Identificador id;
+  string id_del;
+
+  while (!fim)
+  {
+    try
+    {
+      cout << "identificador do Usuario a ser deletado:";
+      cin >> id_del;
+      id.set_identificador(id_del);
+
+      do
+      {
+        cout << "Confimar remover o usuario - " << id_del << "?" << endl
+             << "(s/S/n/N):" << endl;
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->deletarUsuario(identificador->get_identificador(), id_del);
+
+        cout << "Usuario deletado, pressione enter para retornar ao menu" << endl;
+        getchar();
+        getchar();
+      }
+
+      fim = true;
+    }
+    catch (const exception &ex)
+    {
+      cout << "ERRO - " << ex.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+/************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
+
+/************* CONTROLADORA DE SERVICOS DE USUARIO - *************/
+
+void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
+{
+  int rc;
+  sqlite3_stmt *stmt;
+
+  if (id_usu.compare(id_del) == 0)
+    throw runtime_error("O Usuario nao pode deletar sua propria conta");
+
+  if (!CtrlServUsu::existeUsuario(id_del))
+    throw runtime_error("O Usuario nao existe!");
+
+  string SQL_DEL_USUARIO = "DELETE FROM Usuario WHERE ";
+  SQL_DEL_USUARIO += "identificador = '" + id_del + "'";
+
+  rc = CtrlServ::executa(SQL_DEL_USUARIO);
+  trata_retorno(rc);
 }
 
 bool CtrlServUsu::existeUsuario(string id)
@@ -224,8 +343,6 @@ bool CtrlServUsu::existeUsuario(string id)
     //convertendo void* para cosnt char* da resposta do banco
     const char *num = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
 
-    cout << "Existe Usuario - " << num << " comp - " << strcmp(num, zero) << endl;
-
     if (strcmp(num, zero) == 0)
     {
       resultado = false;
@@ -235,6 +352,7 @@ bool CtrlServUsu::existeUsuario(string id)
       resultado = true;
     }
   }
+  CtrlServ::finaliza();
   return resultado;
 }
 
@@ -253,19 +371,19 @@ void CtrlServUsu::cadastrarUsuario(string id, string nome, string senha)
 
   rc = CtrlServ::executa(SQL_INSERT_USUARIO);
 
-  if (trata_retorno(rc))
-  {
-    cout << "Retorno cadastraUsuario" << rc << endl;
-  }
+  trata_retorno(rc);
+  CtrlServ::finaliza();
 }
+/************* CONTROLADORA DE SERVICOS DE USUARIO - *************/
 
-/************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
-
+/************* CONTROLADORA DE SERVICOS DE AUTENTICACAO - USUARIO - *************/
 Usuario *CtrlServAut::autenticar(Identificador &id, Senha &senha)
 {
   int rc;
   Usuario *usu;
   sqlite3 *banco = CtrlServ::get_banco();
+
+  vector<vector<string>> result;
 
   if (!CtrlServ::bd_criado())
     CtrlServ::init_banco();
@@ -278,27 +396,25 @@ Usuario *CtrlServAut::autenticar(Identificador &id, Senha &senha)
   SQL_STMT_SELECT_USUARIO += "senha = '" + senha.get_senha() + "';";
 
   sqlite3_prepare_v2(banco, SQL_STMT_SELECT_USUARIO.c_str(), -2, &stmt, NULL);
+  sqlite3_reset(stmt);
 
   rc = sqlite3_step(stmt);
 
   if (trata_retorno(rc))
   {
-    const char *id = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-    const char *nome = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-    const char *senha = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
 
-    cout << id << endl;
-    cout << nome << endl;
-    cout << senha << endl;
+    string id_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+    string nome_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+    string senha_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)));
 
-    usu = new Usuario("jopsb", "Joao Pedro", "Senha123!");
+    usu = new Usuario(id_str, nome_str, senha_str);
   }
 
   sqlite3_finalize(stmt);
   sqlite3_close(banco);
   return usu;
 }
-/*************CONTROLADORA DE SERVICO - AUTENTICACAO********/
+/************* CONTROLADORA DE SERVICOS DE AUTENTICACAO - USUARIO - *************/
 
 /****CONTROLADORA DE SERVICOS BASE ********/
 
