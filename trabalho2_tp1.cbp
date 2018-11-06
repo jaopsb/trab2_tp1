@@ -34,7 +34,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="include/Comandos.h" />
 		<Unit filename="include/Controladoras.hpp" />
 		<Unit filename="include/Entidades.hpp" />
 		<Unit filename="include/Interfaces.hpp" />
@@ -43,7 +42,6 @@
 		<Unit filename="include/dominios.hpp" />
 		<Unit filename="include/sqlite3.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/Comandos.cpp" />
 		<Unit filename="src/Controladoras.cpp" />
 		<Unit filename="src/Entidades.cpp" />
 		<Unit filename="src/Stubs.cpp" />

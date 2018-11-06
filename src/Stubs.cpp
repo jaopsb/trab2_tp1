@@ -1,11 +1,9 @@
+#include <iostream>
 #include "Stubs.h"
 
-Stubs::Stubs()
-{
-    //ctor
-}
+using namespace std;
 
-Stubs::~Stubs()
+void CtrlServUsuStub::buscar_usuario()
 {
-    //dtor
+    cout << "stub" << endl;
 }

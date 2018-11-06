@@ -2,7 +2,6 @@
 #define CONTROLADORAS_H
 #include "Interfaces.hpp"
 #include "dominios.hpp"
-#include "Comandos.h"
 #include <sqlite3.h>
 #include <stdexcept>
 #include <iostream>
@@ -55,7 +54,7 @@ private:
   sqlite3_stmt *stmt;
   sqlite3 *banco;
 
-  bool init_banco();
+    bool init_banco();
 
 public:
   Usuario *autenticar(Identificador &, Senha &);
@@ -65,8 +64,9 @@ class CtrlServUsu : public CtrlServ
 {
 private:
 public:
-  Cartao_de_Credito *buscar_cartao(string *);
-  void buscarUsuario();
+  Cartao_de_Credito *buscar_cartao(string);
+  void cadastrarUsuario(string, string, string);
+  bool existeUsuario(string);
 };
 
 class CtrlIUUsu
@@ -75,17 +75,15 @@ private:
   Identificador *identificador;
   Senha *senha;
   CtrlServUsu *ctrl;
-  ICmd *cmd;
-  void editarUsuario();
+  void cadastrar();
 
 public:
   CtrlIUUsu(string, string);
-  const static int LOGIN = 1;
-  const static int REGISTRAR = 2;
-  const static int EDIT_USU = 3;
-  const static int CRIA_ACOM = 4;
-  const static int RESERVA = 5;
-  const static int EDIT_ACOM = 6;
+  const static int REGISTRAR = 1;
+  const static int DEL_USU = 2;
+  const static int CRIA_ACOM = 3;
+  const static int RESERVA = 4;
+  const static int EDIT_ACOM = 5;
 
   void executa();
 

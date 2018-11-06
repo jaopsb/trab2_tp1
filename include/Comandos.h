@@ -26,7 +26,6 @@ class CmdBuscarUsuario : public ICmd
 private:
   Identificador *identificador;
   Senha *senha;
-  CtrlServ *ctrl;
   RetornoLogin retorno;
 
 public:

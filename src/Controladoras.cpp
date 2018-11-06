@@ -2,7 +2,7 @@
 #include <sqlite3.h>
 #include <vector>
 #include <string>
-#include "Comandos.h"
+#include <cstring>
 #include "dominios.hpp"
 #include "Entidades.hpp"
 #include "Controladoras.hpp"
@@ -100,6 +100,28 @@ RetornoLogin CtrlIUAut::autenticar()
 
 /*************CONTROLADORA DE INTERFACE DE USUARIO - AUTENTICACAO********/
 
+/************* CONTROLADORA DE SERVICOS *************/
+
+int CtrlServ::executa(string sql)
+{
+  int rc;
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
+
+  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  sqlite3_prepare_v2(banco, sql.c_str(), -2, &stmt, NULL);
+
+  rc = sqlite3_step(stmt);
+
+  sqlite3_close(banco);
+  return rc;
+}
+
+/************* CONTROLADORA DE SERVICOS *************/
+
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
 void CtrlIUUsu::setCtrlServUsu(CtrlServUsu *serv)
@@ -115,18 +137,18 @@ void CtrlIUUsu::executa()
   while (opt != 5)
   {
     cout << "Painel Usuario" << endl;
-    cout << "Registrar Usuario - " << CtrlIUUsu::REGISTRAR << endl;
-    cout << "Editar Dados      - " << CtrlIUUsu::EDIT_USU << endl;
-    cout << "Sair              - 5" << endl;
+    cout << "Cadastrar Usuario    - " << CtrlIUUsu::REGISTRAR << endl;
+    cout << "Remover Usuario      - " << CtrlIUUsu::DEL_USU << endl;
+    cout << "Sair                 - 5" << endl;
     cout << "Selecione a opcao: ";
     cin >> opt;
 
     switch (opt)
     {
-    case CtrlIUUsu::EDIT_USU:
-      CtrlIUUsu::editarUsuario();
+    case CtrlIUUsu::DEL_USU:
       break;
     case CtrlIUUsu::REGISTRAR:
+      CtrlIUUsu::cadastrar();
       break;
     default:
       cout << "NENHUMA RESPOSTA" << endl;
@@ -143,65 +165,101 @@ CtrlIUUsu::CtrlIUUsu(string id, string sn)
   senha->set_senha(sn);
 }
 
-void CtrlIUUsu::editarUsuario()
+void CtrlIUUsu::cadastrar()
 {
-  cmd = new CmdBuscarUsuario(identificador, senha);
-  cmd->executar();
+  Identificador id;
+  Senha sn;
+  Nome n;
+  char resp;
+  string nome, senha, identificador;
+  bool fim = false;
+  bool resultado = true;
+  while (!fim)
+  {
+    try
+    {
+      cout << "Nome:";
+      getline(cin, nome);
+      getline(cin, nome); //apagando enter
+      n.set_nome(nome);
+      cout << "Identificador:";
+      cin >> identificador;
+      id.set_identificador(identificador);
+      cout << "Senha:";
+      cin >> senha;
+      sn.set_senha(senha);
+      ctrl->cadastrarUsuario(nome, identificador, senha);
+      cout << "USUARIO CADASTRADO!" << endl;
+    }
+    catch (const invalid_argument &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        resultado = false;
+        fim = true;
+      }
+    }
+  }
 }
 
-void CtrlServUsu::buscarUsuario()
+bool CtrlServUsu::existeUsuario(string id)
 {
-  cout << "Serv - Editar Usuario" << endl;
-  if (!CtrlServ::bd_criado())
-    CtrlServ::init_banco();
+  int rc;
+  bool resultado = false;
+  sqlite3_stmt *stmt;
+  const char *zero("0"); //valor padrao para validacao
 
-  cout << "OK" << endl;
+  //comando de selecao que conta quantos usuarios existem com o identificador dado
+  //deve ser retornado 0 ou 1
+  string SQL_SELECT_USUARIO = "SELECT COUNT(*) FROM USUARIO WHERE ";
+  SQL_SELECT_USUARIO += "identificador = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_USUARIO);
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    //convertendo void* para cosnt char* da resposta do banco
+    const char *num = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
+
+    cout << "Existe Usuario - " << num << " comp - " << strcmp(num, zero) << endl;
+
+    if (strcmp(num, zero) == 0)
+    {
+      resultado = false;
+    }
+    else
+    {
+      resultado = true;
+    }
+  }
+  return resultado;
+}
+
+void CtrlServUsu::cadastrarUsuario(string id, string nome, string senha)
+{
+  int rc;
+  sqlite3_stmt *stmt;
+
+  string SQL_INSERT_USUARIO = "INSERT INTO USUARIO (identificador,nome,senha) VALUES (";
+  SQL_INSERT_USUARIO += "'" + id + "',";
+  SQL_INSERT_USUARIO += "'" + nome + "',";
+  SQL_INSERT_USUARIO += "'" + senha + "');";
+
+  if (CtrlServUsu::existeUsuario(id))
+    throw invalid_argument("Usuario ja Cadastrado!");
+
+  rc = CtrlServ::executa(SQL_INSERT_USUARIO);
+
+  if (trata_retorno(rc))
+  {
+    cout << "Retorno cadastraUsuario" << rc << endl;
+  }
 }
 
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
-
-/*************CONTROLADORA DE SERVICO - AUTENTICACAO********/
-bool CtrlServAut::init_banco()
-{
-  char *errmsg;
-  bool resultado = true;
-  vector<char *> sql;
-
-  sql.push_back(SQL_STMT_CREATE_USUARIO);
-  sql.push_back(SQL_STMT_CREATE_ACOMODACAO);
-  sql.push_back(SQL_STMT_CREATE_CARTAO);
-  sql.push_back(SQL_STMT_CREATE_CONTACORRENTE);
-  sql.push_back(SQL_STMT_CREATE_RESERVA);
-
-  //inicia o banco
-  if (sqlite3_open(NOME_BD, &banco) != SQLITE_OK)
-  {
-    throw sqlite3_errmsg(banco);
-  }
-
-  try
-  {
-    //inicia o banco de dados com as tabelas
-    for (int i = 0; i < sql.size(); i++)
-    {
-      sqlite3_prepare_v2(banco, sql.at(i), -2, &stmt, NULL);
-
-      if (sqlite3_step(stmt) == SQLITE_ERROR)
-        throw sqlite3_errmsg(banco);
-    }
-  }
-  catch (char *msg)
-  {
-    cout << msg << endl;
-    delete msg;
-    resultado = false;
-  }
-
-  sqlite3_free(errmsg);
-  sqlite3_close(banco);
-
-  return resultado;
-}
 
 Usuario *CtrlServAut::autenticar(Identificador &id, Senha &senha)
 {
@@ -289,26 +347,4 @@ bool CtrlServ::init_banco()
     banco_criado = true;
   } //banco ja criado
   return resultado;
-}
-/****CONTROLADORA DE SERVICOS BASE ********/
-
-int CtrlServ::executa(string sql)
-{
-  int rc;
-  sqlite3 *banco = CtrlServ::get_banco();
-
-  if (!CtrlServ::bd_criado())
-    CtrlServ::init_banco();
-
-  rc = sqlite3_open(CtrlServ::get_nome_banco(), &banco);
-
-  if (trata_retorno(rc))
-  {
-
-    sqlite3_prepare_v2(banco, sql.c_str(), -2, &stmt, NULL);
-
-    rc = sqlite3_step(stmt);
-  }
-
-  return rc;
 }

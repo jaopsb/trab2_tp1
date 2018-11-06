@@ -1,14 +1,12 @@
 #ifndef STUBS_H
 #define STUBS_H
+#include "Entidades.hpp"
+#include "dominios.hpp"
+#include "Controladoras.hpp"
 
-class Stubs
+class CtrlServUsuStub : public CtrlServUsu
 {
-  public:
-    Stubs();
-    virtual ~Stubs();
-
-  protected:
-  private:
+public:
+  void buscar_usuario();
 };
-
 #endif // STUBS_H

@@ -1,9 +1,10 @@
 #include <iostream>
+#include <stdexcept>
+#include <string>
 #include <Testes.hpp>
 #include "Controladoras.hpp"
 #include "Interfaces.hpp"
-#include <stdexcept>
-#include <string>
+#include "Stubs.h"
 
 using namespace std;
 
@@ -34,7 +35,8 @@ int main()
 
     //IUUser
     CtrlIUUsu *ctrUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
-
+    CtrlServUsu *ctrl = new CtrlServUsuStub();
+    ctrUsu->setCtrlServUsu(ctrl);
     ctrUsu->executa();
   }
   catch (const exception &ex)
