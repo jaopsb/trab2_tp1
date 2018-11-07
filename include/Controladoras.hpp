@@ -69,6 +69,7 @@ public:
   void cadastrarUsuario(string, string, string);
   bool existeUsuario(string);
   void deletarUsuario(string, string);
+  Usuario *buscarUsuario(string);
 };
 
 class CtrlIUUsu

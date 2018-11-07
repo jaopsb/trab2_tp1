@@ -55,7 +55,6 @@ int main()
       {
       case 1:
       {
-
         //IUUser
         ctrlIUUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
         CtrlServUsu *ctrl = new CtrlServUsu();

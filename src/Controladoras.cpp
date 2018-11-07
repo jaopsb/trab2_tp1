@@ -41,6 +41,16 @@ bool trata_retorno(int rc)
   }
 }
 
+string formata_senha(string senha)
+{
+  string nSenha;
+  for (int i = 0; i < senha.length(); i++)
+  {
+    nSenha += '*';
+  }
+  return nSenha;
+}
+
 /***************FUNCOES AUXILIARES************/
 
 /*************CONTROLADORA DE INTERFACE DE USUARIO - AUTENTICACAO********/
@@ -130,7 +140,6 @@ void CtrlServ::finaliza()
 /************* CONTROLADORA DE SERVICOS *************/
 
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
-
 void CtrlIUUsu::setCtrlServUsu(CtrlServUsu *serv)
 {
   ctrl = serv;
@@ -179,14 +188,71 @@ CtrlIUUsu::CtrlIUUsu(string id, string sn)
 
 void CtrlIUUsu::editar()
 {
-  bool fim = false;
+  int alteracoes = 0;
   char resp;
+  bool fim = false;
+  Usuario *u;
+
+  Nome nome;
+  Identificador iden;
+  Senha sen;
+
+  string novoNome, novoId, novaSenha;
 
   while (!fim)
   {
     try
     {
-      //buscar dados do usuario
+      u = ctrl->buscarUsuario(identificador->get_identificador());
+
+      cout << "Editar Dados" << endl
+           << "Para alterar os dados, escreva-o nos determinados campos,para pula-lo, escreva espaco e em seguida enter" << endl;
+      cout << "Nome (" << u->get_nome() << "):";
+
+      getline(cin, novoNome);
+      getline(cin, novoNome);
+
+      if (novoNome.compare(" ") != 0)
+      {
+        nome.set_nome(novoNome);
+        alteracoes++;
+      }
+
+      cout << "Identificador (" + u->get_identificador() + "):";
+      getline(cin, novoId);
+
+      if (novoId.compare(" ") != 0)
+      {
+        iden.set_identificador(novoId);
+        alteracoes++;
+      }
+
+      cout << "Senha:";
+      getline(cin, novaSenha);
+
+      if (novaSenha.compare(" ") != 0)
+      {
+        sen.set_senha(novaSenha);
+        alteracoes++;
+      }
+
+      if (alteracoes > 0)
+      {
+        cout << "Confirmar alteracoes?" << endl;
+        if (nome.get_nome().compare(" ") != 0)
+        {
+          cout << "Nome :" << nome.get_nome() << endl;
+        }
+        if (iden.get_identificador().compare(" ") != 0)
+        {
+          cout << "Identificador :" << iden.get_identificador() << endl;
+        }
+        if (sen.get_senha().compare(" ") != 0)
+        {
+          cout << "Senha :" << formata_senha(sen.get_senha()) << endl;
+        }
+      }
+      fim = true;
     }
     catch (const invalid_argument &ia)
     {
@@ -301,10 +367,35 @@ void CtrlIUUsu::deletar()
     }
   }
 }
-
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
 /************* CONTROLADORA DE SERVICOS DE USUARIO - *************/
+Usuario *CtrlServUsu::buscarUsuario(string id)
+{
+  int rc;
+  Usuario *u;
+  sqlite3_stmt *stmt;
+
+  if (!CtrlServUsu::existeUsuario(id))
+    throw runtime_error("Usuario nao encontrado");
+
+  string SQL_SELECT_USUARIO = "SELECT * FROM USUARIO WHERE ";
+  SQL_SELECT_USUARIO += "identificador = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_USUARIO);
+
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    string id((char *)sqlite3_column_text(stmt, 1));
+    string nome((char *)sqlite3_column_text(stmt, 2));
+    string senha((char *)sqlite3_column_text(stmt, 3));
+
+    u = new Usuario(id, nome, senha);
+  }
+  CtrlServ::finaliza();
+  return u;
+}
 
 void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
 {
