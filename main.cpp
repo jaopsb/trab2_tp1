@@ -26,6 +26,7 @@ int main()
     //inciializacao do banco
     CtrlServ *serv = new CtrlServ();
     serv->init_banco();
+
     delete serv; //servico feito
 
     //iniciando sistema

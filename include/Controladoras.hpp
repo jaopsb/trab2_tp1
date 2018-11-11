@@ -66,9 +66,11 @@ class CtrlServUsu : public CtrlServ
 private:
 public:
   Cartao_de_Credito *buscar_cartao(string);
+  void cadastraContaCorrente(string, string, string);
   void cadastrarUsuario(string, string, string);
   bool existeUsuario(string);
   void deletarUsuario(string, string);
+  void editarUsuario(string, string, string, string);
   Usuario *buscarUsuario(string);
 };
 
@@ -81,12 +83,14 @@ private:
   void cadastrar();
   void deletar();
   void editar();
+  void cadastrarCC();
 
 public:
   CtrlIUUsu(string, string);
   const static int REGISTRAR = 1;
   const static int DEL_USU = 2;
   const static int EDIT_USU = 3;
+  const static int REG_CONTAC = 4;
 
   void executa();
 
