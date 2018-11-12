@@ -280,15 +280,6 @@ void CtrlIUUsu::editar()
         alteracoes++;
       }
 
-      cout << "Identificador (" + u->get_identificador() + "):";
-      getline(cin, novoId);
-
-      if (novoId.compare(" ") != 0)
-      {
-        iden.set_identificador(novoId);
-        alteracoes++;
-      }
-
       cout << "Senha:";
       getline(cin, novaSenha);
 
@@ -305,10 +296,6 @@ void CtrlIUUsu::editar()
         {
           cout << "Nome :" << nome.get_nome() << endl;
         }
-        if (!iden.get_identificador().empty())
-        {
-          cout << "Identificador :" << iden.get_identificador() << endl;
-        }
         if (!sen.get_senha().empty())
         {
           cout << "Senha :" << formata_senha(sen.get_senha()) << endl;
@@ -320,7 +307,7 @@ void CtrlIUUsu::editar()
         } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
         if (resp == 's' || resp == 'S')
         {
-          ctrl->editarUsuario(u->get_identificador(), iden.get_identificador(), nome.get_nome(), sen.get_senha());
+          ctrl->editarUsuario(u->get_identificador(), nome.get_nome(), sen.get_senha());
           cout << "Dados editados com sucesso pressione enter para voltar ao menu" << endl;
           getchar();
           getchar();
@@ -472,17 +459,12 @@ Usuario *CtrlServUsu::buscarUsuario(string id)
   return u;
 }
 
-void CtrlServUsu::editarUsuario(string identificador, string id, string nome, string senha)
+void CtrlServUsu::editarUsuario(string identificador, string nome, string senha)
 {
   int rc;
   cout << 'alterando usuario';
 
   string SQL_EDIT_USUARIO = "UPDATE Usuario set ";
-
-  if (!id.empty())
-  {
-    SQL_EDIT_USUARIO += "identificador = '" + id + "' ";
-  }
 
   if (!nome.empty())
   {

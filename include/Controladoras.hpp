@@ -70,7 +70,7 @@ public:
   void cadastrarUsuario(string, string, string);
   bool existeUsuario(string);
   void deletarUsuario(string, string);
-  void editarUsuario(string, string, string, string);
+  void editarUsuario(string, string, string);
   Usuario *buscarUsuario(string);
 };
 
