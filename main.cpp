@@ -19,7 +19,7 @@ int main()
   Usuario *usu;
 
   CtrlIUUsu *ctrlIUUsu;
-
+  CtrlIUAcom *ctrlIUAcom;
   try
   {
     //inciializacao do banco
@@ -30,42 +30,53 @@ int main()
 
     //iniciando sistema
     CtrlIUAut *iuAut = new CtrlIUAut();
+
     IServAut *ctrlAut = new CtrlServAut();
 
     iuAut->setCtrlServAut(ctrlAut);
 
-    cout << "autenticacao" << endl;
     //autenticando acesso
     RetornoLogin retorno = iuAut->autenticar();
 
     if (!retorno.get_resultado())
       throw runtime_error("Programa finalizado");
 
+    delete iuAut;
+    delete ctrlAut;
+
     usu = retorno.get_usuario();
 
     while (!fim)
     {
       system("cls");
-      cout << "Gerenciar Usuario     - " << USUARIO << endl;
-      cout << "Gerenciar Acomodacao  - " << ACOMODACAO << endl;
-      cout << "Sair                  - " << SAIR << endl;
+      cout << "+-------------------------+" << endl;
+      cout << "|Gerenciar Usuario     - " << USUARIO << "|" << endl;
+      cout << "|Gerenciar Acomodacao  - " << ACOMODACAO << "|" << endl;
+      cout << "|Sair                  - " << SAIR << "|" << endl;
+      cout << "+-------------------------+" << endl;
+      cout << "|Opcao:";
       cin >> opt;
 
       switch (opt)
       {
       case 1:
       {
-        //IUUser
         ctrlIUUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
-        CtrlServUsu *ctrl = new CtrlServUsu();
-        ctrlIUUsu->setCtrlServUsu(ctrl);
+        IServUsu *ctrl = new CtrlServUsu();
+        ctrlIUUsu->setCtrlServ(ctrl);
         ctrlIUUsu->executa();
+        delete ctrlIUUsu;
+        delete ctrl;
         break;
       }
       case 2:
       {
-
-        cout << "Ainda nao" << endl;
+        ctrlIUAcom = new CtrlIUAcom(usu->get_identificador());
+        IServAcom *ctrl = new CtrlServAcom();
+        ctrlIUAcom->setCtrlServ(ctrl);
+        ctrlIUAcom->executa();
+        delete ctrlIUAcom;
+        delete ctrl;
         break;
       }
       case 5:

@@ -37,14 +37,12 @@
 		<Unit filename="include/Controladoras.hpp" />
 		<Unit filename="include/Entidades.hpp" />
 		<Unit filename="include/Interfaces.hpp" />
-		<Unit filename="include/Stubs.h" />
 		<Unit filename="include/Testes.hpp" />
 		<Unit filename="include/dominios.hpp" />
 		<Unit filename="include/sqlite3.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Controladoras.cpp" />
 		<Unit filename="src/Entidades.cpp" />
-		<Unit filename="src/Stubs.cpp" />
 		<Unit filename="src/Testes.cpp" />
 		<Unit filename="src/dominios.cpp" />
 		<Unit filename="src/sqlite3.c">

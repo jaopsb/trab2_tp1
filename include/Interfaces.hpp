@@ -18,21 +18,28 @@ public:
   virtual ~IServAut() {}
 };
 
-class IServLogin
-{
-public:
-  virtual Usuario Login(Identificador &, Senha &) = 0;
-};
-
 class IServUsu
 {
 public:
-  virtual Usuario buscarUsuario(string, string) = 0;
+  virtual void cadastrarUsuario(string, string, string) = 0;
+  virtual void cadastraContaCorrente(string, string, int, int) = 0;
+  virtual void cadastraCartaodeCredito(string, string, string) = 0;
+
+  virtual Usuario *buscarUsuario(string) = 0;
+  virtual Conta_corrente *buscarContaCorrente(string) = 0;
+  virtual Cartao_de_Credito *buscar_cartao(string) = 0;
+
+  virtual void editarUsuario(string, string, string) = 0;
+
+  virtual void deletarUsuario(string, string) = 0;
+  virtual void deletarContaCorrente(string) = 0;
+  virtual void deletarCartaodeCredito(string) = 0;
 };
 
-class ICmd
+class IServAcom
 {
 public:
-  virtual void executar() = 0;
+  virtual void buscarAcomodacoes(string) = 0;
 };
+
 #endif //INTERFACES_H

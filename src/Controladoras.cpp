@@ -13,7 +13,7 @@
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
 char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`id`	INTEGER,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	REAL NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
-char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
+char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER , `NUMERO` TEXT NOT NULL, `AGENCIA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER , `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
 char *SQL_INSERT_USUARIO_ADMIN = "insert into USUARIO (identificador,nome,senha) values ('admin','Administrador','Admin123!');";
@@ -140,15 +140,13 @@ void CtrlServ::finaliza()
 /************* CONTROLADORA DE SERVICOS *************/
 
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
-void CtrlIUUsu::setCtrlServUsu(CtrlServUsu *serv)
+void CtrlIUUsu::setCtrlServ(IServUsu *serv)
 {
   ctrl = serv;
 }
 
 void CtrlIUUsu::executa()
 {
-  ctrl = new CtrlServUsu();
-
   int opt = 0;
 
   u = ctrl->buscarUsuario(identificador->get_identificador());
@@ -156,14 +154,18 @@ void CtrlIUUsu::executa()
   while (opt != 5)
   {
     system("cls");
-    cout << "Painel Usuario - " << identificador->get_identificador() << endl;
-    cout << "Cadastrar Usuario         - " << CtrlIUUsu::REGISTRAR << endl;
-    cout << "Remover Usuario           - " << CtrlIUUsu::DEL_USU << endl;
-    cout << "Editar dados              - " << CtrlIUUsu::EDIT_USU << endl;
-    cout << "Cadastrar Conta corrente  - " << CtrlIUUsu::REG_CONTAC << endl;
-    cout << "Remover Conta corrente    - " << CtrlIUUsu::DEL_CONTAC << endl;
-    cout << "Sair                      - 5" << endl;
-    cout << "Selecione a opcao: ";
+    cout << "|Painel Usuario - " << identificador->get_identificador() << " |" << endl;
+    cout << "+-------------------------------+" << endl;
+    cout << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << "|" << endl;
+    cout << "|Remover Usuario             - " << CtrlIUUsu::DEL_USU << "|" << endl;
+    cout << "|Editar dados                - " << CtrlIUUsu::EDIT_USU << "|" << endl;
+    cout << "|Cadastrar Conta corrente    - " << CtrlIUUsu::REG_CONTAC << "|" << endl;
+    cout << "|Remover Conta corrente      - " << CtrlIUUsu::DEL_CONTAC << "|" << endl;
+    cout << "|Cadastrar Cartao de Credito - " << CtrlIUUsu::REG_CARTCRED << "|" << endl;
+    cout << "|Remover Cartao de Credito   - " << CtrlIUUsu::DEL_CARTCRED << "|" << endl;
+    cout << "|Sair                        - 5|" << endl;
+    cout << "+-------------------------------+" << endl;
+    cout << "|Selecione a opcao: ";
     cin >> opt;
 
     switch (opt)
@@ -183,6 +185,12 @@ void CtrlIUUsu::executa()
     case CtrlIUUsu::DEL_CONTAC:
       CtrlIUUsu::deletarCC();
       break;
+    case CtrlIUUsu::REG_CARTCRED:
+      CtrlIUUsu::cadastrarCdC();
+      break;
+    case CtrlIUUsu::DEL_CARTCRED:
+      CtrlIUUsu::removerCdc();
+      break;
     default:
       break;
     }
@@ -195,6 +203,104 @@ CtrlIUUsu::CtrlIUUsu(string id, string sn)
   identificador->set_identificador(id);
   senha = new Senha();
   senha->set_senha(sn);
+}
+
+void CtrlIUUsu::removerCdc()
+{
+  bool fim = false;
+  char resp;
+  Cartao_de_Credito *cdc;
+
+  while (!fim)
+  {
+    try
+    {
+      cdc = ctrl->buscar_cartao(u->get_identificador());
+      cout << "###########################" << endl
+           << "#Remover Cartao?          #" << endl
+           << "#Numero: " << cdc->get_numero() << " #" << endl
+           << "#Data Validade: " << cdc->get_data_validade() << "     #" << endl
+           << "##########################"
+           << "(s/S/n/N): ";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->deletarCartaodeCredito(u->get_identificador());
+        cout << "Cartao removido, pressione enter para retornar ao menu";
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+void CtrlIUUsu::cadastrarCdC()
+{
+  bool fim = false;
+  char resp;
+
+  string num, dtVal;
+  Numero_Cartao numero;
+  Data_Validade data_val;
+
+  while (!fim)
+  {
+    try
+    {
+      cout << "|Cadastrar Cartao de Credito" << endl;
+      cout << "|Numero:";
+      cin >> num;
+      numero.set_numero_cartao(num);
+      cout << "|Data de Validade:";
+      cin >> dtVal;
+      data_val.set_data_validade(dtVal);
+
+      system("cls");
+      cout << "###############################" << endl
+           << "#Confirmar cadastro de Cartao?#" << endl
+           << "#Numero: " << num << "     #" << endl
+           << "#Data de Validade: " << dtVal << "      #" << endl
+           << "###############################"
+           << "(s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->cadastraCartaodeCredito(u->get_identificador(), numero.get_numero_cartao(), data_val.get_data_validade());
+        cout << "Cartao de Credito cadastrado com sucesso, pressione enter para retornar ao menu" << endl;
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &ia)
+    {
+      cout << "ERRO - " << ia.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
 }
 
 void CtrlIUUsu::cadastrarCC()
@@ -212,26 +318,29 @@ void CtrlIUUsu::cadastrarCC()
   {
     try
     {
-      cout << "Cadastrar Conta Corrente" << endl;
-      cout << "Numero da conta:";
+      cout << endl;
+      cout << "|Cadastrar Conta Corrente" << endl;
+      cout << "|Numero da conta:";
       cin >> nconta;
       num_conta.set_numero_conta_corrente(nconta);
 
-      cout << "Numero da agencia:";
+      cout << "|Numero da agencia:";
       cin >> nagencia;
       agencia.set_agencia(nagencia);
 
-      cout << "Numero banco:";
+      cout << "|Numero banco:";
       cin >> nbanco;
       banco.set_banco(nbanco);
 
       system("cls");
 
-      cout << "Confirmar Cadastro?" << endl;
-      cout << "Numero da conta: " << num_conta.get_numero_conta_corrente() << endl
-           << "Numero da agencia: " << agencia.get_agencia() << endl
-           << "Numero do banco: " << banco.get_banco() << endl;
-      cout << "(s/S/n/N):";
+      cout << "##########################" << endl
+           << "#Confirmar Cadastro?     #" << endl
+           << "#Numero da conta: " << num_conta.get_numero_conta_corrente() << " #" << endl
+           << "#Numero da agencia: " << agencia.get_agencia() << "  #" << endl
+           << "#Numero do banco: " << banco.get_banco() << "    #" << endl
+           << "##########################" << endl
+           << "(s/S/n/N):";
 
       do
       {
@@ -244,7 +353,7 @@ void CtrlIUUsu::cadastrarCC()
                                     agencia.get_agencia(),
                                     banco.get_banco());
 
-        cout << "Conta corrente cadastrada com sucesso. presisone enter para retornar ao menu" << endl;
+        cout << "-Conta corrente cadastrada com sucesso. presisone enter para retornar ao menu-" << endl;
         getchar();
         getchar();
         fim = true;
@@ -252,8 +361,8 @@ void CtrlIUUsu::cadastrarCC()
     }
     catch (const exception &ia)
     {
-      cout << "ERRO - " << ia.what() << endl;
-      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cout << "-ERRO - " << ia.what() << "-" << endl;
+      cout << "-Deseja tentar de novo? (s/S|n/N)" << endl;
       cin >> resp;
       if (resp == 'N' || resp == 'n')
       {
@@ -274,10 +383,12 @@ void CtrlIUUsu::deletarCC()
     {
 
       Conta_corrente *cc = ctrl->buscarContaCorrente(u->get_identificador());
-      cout << "Deletar Conta Corrente?" << endl;
-      cout << "Conta - " << cc->get_numero() << endl
-           << "Agencia - " << cc->get_agencia() << endl
-           << "Banco - " << cc->get_banco() << endl;
+      cout << "##########################" << endl
+           << "#Remover Conta Corrente? #" << endl
+           << "#Conta - " << cc->get_numero() << "          #" << endl
+           << "#Agencia - " << cc->get_agencia() << "           #" << endl
+           << "#Banco - " << cc->get_banco() << "             #" << endl
+           << "##########################" << endl;
       cout << "(s/S/n/N):";
       do
       {
@@ -310,7 +421,6 @@ void CtrlIUUsu::editar()
   int alteracoes = 0;
   char resp;
   bool fim = false;
-  Usuario *u;
 
   Nome nome;
   Identificador iden;
@@ -323,10 +433,10 @@ void CtrlIUUsu::editar()
     try
     {
       u = ctrl->buscarUsuario(identificador->get_identificador());
-
-      cout << "Editar Dados" << endl
-           << "Para alterar os dados, escreva-o nos determinados campos,para pula-lo, escreva espaco e em seguida enter" << endl;
-      cout << "Nome (" << u->get_nome() << "):";
+      cout << endl;
+      cout << "|Editar Dados" << endl
+           << "|Para alterar os dados, escreva-o nos determinados campos,para pula-lo, escreva espaco e em seguida enter|" << endl;
+      cout << "|Nome (" << u->get_nome() << "):";
 
       getline(cin, novoNome);
       getline(cin, novoNome);
@@ -337,7 +447,7 @@ void CtrlIUUsu::editar()
         alteracoes++;
       }
 
-      cout << "Senha:";
+      cout << "|Senha:";
       getline(cin, novaSenha);
 
       if (novaSenha.compare(" ") != 0)
@@ -348,15 +458,19 @@ void CtrlIUUsu::editar()
 
       if (alteracoes > 0)
       {
-        cout << "Confirmar alteracoes?" << endl;
+
+        cout << "#######################" << endl;
+        cout << "#Confirmar alteracoes?" << endl;
+
         if (!nome.get_nome().empty())
         {
-          cout << "Nome :" << nome.get_nome() << endl;
+          cout << "#Nome: " << nome.get_nome() << endl;
         }
         if (!sen.get_senha().empty())
         {
-          cout << "Senha :" << formata_senha(sen.get_senha()) << endl;
+          cout << "#Senha: " << formata_senha(sen.get_senha()) << endl;
         }
+        cout << "#######################" << endl;
         cout << "(s/S/n/N):";
         do
         {
@@ -365,7 +479,7 @@ void CtrlIUUsu::editar()
         if (resp == 's' || resp == 'S')
         {
           ctrl->editarUsuario(u->get_identificador(), nome.get_nome(), sen.get_senha());
-          cout << "Dados editados com sucesso pressione enter para voltar ao menu" << endl;
+          cout << "-Dados editados com sucesso pressione enter para voltar ao menu-" << endl;
           getchar();
           getchar();
         }
@@ -409,12 +523,15 @@ void CtrlIUUsu::cadastrar()
       cin >> senha;
       sn.set_senha(senha);
 
+      system("cls");
+
+      cout << "Confirmar cadastro?" << endl
+           << "Nome: " << n.get_nome() << "\t"
+           << "identificador:" << id.get_identificador() << endl
+           << "Senha : " << formata_senha(sn.get_senha()) << endl
+           << "(s/S/n/N):";
       do
       {
-        cout << "Confirmar cadastro? (s/S/n/N)" << endl
-             << "Nome: " << n.get_nome() << "\t"
-             << "identificador:" << id.get_identificador() << endl
-             << "Senha : " << formata_senha(sn.get_senha()) << endl;
         cin >> resp;
       } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
 
@@ -488,12 +605,139 @@ void CtrlIUUsu::deletar()
 }
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
-/************* CONTROLADORA DE SERVICOS DE USUARIO - *************/
+/************* CONTROLADORA DE INTERFACE DE USUARIO - ACOMODACAO ***********/
+
+CtrlIUAcom::CtrlIUAcom(string id)
+{
+  identificador = new Identificador();
+  identificador->set_identificador(id);
+}
+void CtrlIUAcom::setCtrlServ(IServAcom *c)
+{
+  ctrl = c;
+}
+
+void CtrlIUAcom::executa()
+{
+  bool fim = false;
+  char resp;
+
+  while (!fim)
+  {
+    try
+    {
+      cout << "Eh noix" << endl;
+      cin >> resp;
+    }
+    catch (const exception &ex)
+    {
+      cout << "ERRO - " << ex.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+/************* CONTROLADORA DE INTERFACE DE USUARIO - ACOMODACAO ***********/
+
+/************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
+void CtrlServAcom::buscarAcomodacoes(string id)
+{
+  char resp;
+  cout << "Procurando acomodacoes" << endl;
+  cin >> resp;
+}
+/************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
+
+/************* CONTROLADORA DE SERVICOS - USUARIO *************/
+
+void CtrlServUsu::deletarCartaodeCredito(string id)
+{
+  int rc;
+
+  if (!CtrlServUsu::existeCartaodeCredito(id))
+    throw runtime_error("Nao existe cartao cadastrado");
+
+  string SQL_DELETE_CARTAO = "DELETE FROM CARTAO WHERE id_usuario = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_DELETE_CARTAO);
+  trata_retorno(rc);
+  CtrlServ::finaliza();
+}
+
+void CtrlServUsu::cadastraCartaodeCredito(string id, string numero, string dt_validade)
+{
+  int rc;
+
+  if (CtrlServUsu::existeCartaodeCredito(id))
+    throw runtime_error("Ja existe um cartao cadastrado, remova-o para cadastrar outro");
+
+  string SQL_INSERT_CARTAO = "INSERT INTO CARTAO (numero, dt_validade,id_usuario) values(";
+  SQL_INSERT_CARTAO += "'" + numero + "',";
+  SQL_INSERT_CARTAO += "'" + dt_validade + "',";
+  SQL_INSERT_CARTAO += "'" + id + "');";
+
+  rc = CtrlServ::executa(SQL_INSERT_CARTAO);
+  trata_retorno(rc);
+  CtrlServ::finaliza();
+}
+
+bool CtrlServUsu::existeCartaodeCredito(string id)
+{
+  int rc;
+  bool resultado = false;
+  sqlite3_stmt *stmt;
+
+  string SQL_SELECT_CARTAO = "SELECT COUNT(*) FROM CARTAO WHERE ";
+  SQL_SELECT_CARTAO += "id_usuario = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_CARTAO);
+
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+
+    resultado = num > 0;
+  }
+  CtrlServ::finaliza();
+  return resultado;
+}
+
+Cartao_de_Credito *CtrlServUsu::buscar_cartao(string id)
+{
+  int rc;
+  Cartao_de_Credito *cdc;
+  sqlite3_stmt *stmt;
+
+  if (!CtrlServUsu::existeCartaodeCredito(id))
+    throw runtime_error("Nao existe cartao cadastrado");
+
+  string SQL_SELECT_CARTAO = "SELECT * FROM CARTAO WHERE ";
+  SQL_SELECT_CARTAO += "id_usuario = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_CARTAO);
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    string numero = (char *)sqlite3_column_text(stmt, 1);
+    string dt_val = (char *)sqlite3_column_text(stmt, 2);
+
+    cdc = new Cartao_de_Credito(numero, dt_val);
+  }
+
+  return cdc;
+}
+
 Conta_corrente *CtrlServUsu::buscarContaCorrente(string id)
 {
   int rc;
   Conta_corrente *cc;
   sqlite3_stmt *stmt;
+
   if (!CtrlServUsu::existeContaCorrente(id))
     throw runtime_error("Nao existe conta corrente cadastrada para este usuario");
 
@@ -505,11 +749,11 @@ Conta_corrente *CtrlServUsu::buscarContaCorrente(string id)
   {
     stmt = CtrlServ::get_stmt();
 
-      string nnum((char*)sqlite3_column_text(stmt,1));
-      int nagencia = atoi((char *)sqlite3_column_text(stmt, 2));
-      int nbanco = atoi((char *)sqlite3_column_text(stmt, 3));
+    string nnum((char *)sqlite3_column_text(stmt, 1));
+    int nagencia = atoi((char *)sqlite3_column_text(stmt, 2));
+    int nbanco = atoi((char *)sqlite3_column_text(stmt, 3));
 
-      cc = new Conta_corrente(nagencia, nbanco, nnum);
+    cc = new Conta_corrente(nagencia, nbanco, nnum);
   }
   CtrlServ::finaliza();
   return cc;
@@ -553,12 +797,19 @@ void CtrlServUsu::editarUsuario(string identificador, string nome, string senha)
     SQL_EDIT_USUARIO += "nome = '" + nome + "' ";
   }
 
+  if (!nome.empty() && !senha.empty())
+  {
+    SQL_EDIT_USUARIO += " and ";
+  }
+
   if (!senha.empty())
   {
     SQL_EDIT_USUARIO += "senha = '" + senha + "' ";
   }
 
   SQL_EDIT_USUARIO += "where identificador = '" + identificador + "';";
+
+  cout << SQL_EDIT_USUARIO << endl;
 
   rc = CtrlServ::executa(SQL_EDIT_USUARIO);
   trata_retorno(rc);
@@ -590,7 +841,7 @@ void CtrlServUsu::deletarContaCorrente(string id)
     throw runtime_error("Nao existe conta cadastrada");
 
   string SQL_DELETE_CC = "DELETE FROM CONTACORRENTE WHERE ";
-  SQL_DELETE_CC += "id_usuario = '" + id +"';";
+  SQL_DELETE_CC += "id_usuario = '" + id + "';";
 
   rc = CtrlServ::executa(SQL_DELETE_CC);
   trata_retorno(rc);

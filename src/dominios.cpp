@@ -369,7 +369,7 @@ void Numero_Cartao::validar(string valor) throw(invalid_argument)
 
   for (int i = nDigits - 1; i >= 0; i--)
   {
-    if (!isalpha(i))
+    if (isalpha(i))
       throw invalid_argument("Numero de cartao invalido");
 
     int d = valor[i] - 'a';

@@ -45,7 +45,7 @@ public:
   void setCtrlServAut(IServAut *);
 };
 
-class CtrlServAut : public IServAut, public CtrlServ
+class CtrlServAut : public CtrlServ, public IServAut
 {
 private:
   char *NOME_BD = "hotel.db";
@@ -61,22 +61,27 @@ public:
   Usuario *autenticar(Identificador &, Senha &);
 };
 
-class CtrlServUsu : public CtrlServ
+class CtrlServUsu : public CtrlServ, public IServUsu
 {
 private:
+  bool existeUsuario(string);
+  bool existeContaCorrente(string);
+  bool existeCartaodeCredito(string);
+
 public:
   void cadastrarUsuario(string, string, string);
   void cadastraContaCorrente(string, string, int, int);
+  void cadastraCartaodeCredito(string, string, string);
+
   Usuario *buscarUsuario(string);
   Conta_corrente *buscarContaCorrente(string);
   Cartao_de_Credito *buscar_cartao(string);
-  void editarUsuario(string, string, string);
 
-  bool existeUsuario(string);
-  bool existeContaCorrente(string);
+  void editarUsuario(string, string, string);
 
   void deletarUsuario(string, string);
   void deletarContaCorrente(string);
+  void deletarCartaodeCredito(string);
 };
 
 class CtrlIUUsu
@@ -84,13 +89,15 @@ class CtrlIUUsu
 private:
   Identificador *identificador;
   Senha *senha;
-  CtrlServUsu *ctrl;
+  IServUsu *ctrl;
   Usuario *u;
   void cadastrar();
   void deletar();
   void editar();
-  void cadastrarCC();
+  void cadastrarCC(); //conta corrente
   void deletarCC();
+  void cadastrarCdC(); //cartao de credito
+  void removerCdc();
 
 public:
   CtrlIUUsu(string, string);
@@ -100,10 +107,31 @@ public:
   const static int REG_CONTAC = 4;
   const static int DEL_CONTAC = 6;
   const static int EDIT_CONTAC = 7;
+  const static int REG_CARTCRED = 8;
+  const static int DEL_CARTCRED = 9;
 
   void executa();
 
-  void setCtrlServUsu(CtrlServUsu *);
+  void setCtrlServ(IServUsu *);
+};
+
+class CtrlServAcom : public CtrlServ, public IServAcom
+{
+public:
+  void buscarAcomodacoes(string);
+};
+
+class CtrlIUAcom
+{
+private:
+  Identificador *identificador;
+  IServAcom *ctrl;
+
+public:
+  CtrlIUAcom(string);
+  void executa();
+
+  void setCtrlServ(IServAcom *);
 };
 
 #endif // CONTROLADORAS_
