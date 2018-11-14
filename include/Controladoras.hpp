@@ -130,6 +130,8 @@ private:
 
 public:
   CtrlIUAcom(string);
+  const static int CAD_ACOM = 1;
+
   void executa();
 
   void setCtrlServ(IServAcom *);
