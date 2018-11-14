@@ -12,7 +12,7 @@
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
-char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`id`	INTEGER,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	REAL NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
+char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`id`	INTEGER,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
 char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER , `NUMERO` TEXT NOT NULL, `AGENCIA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER , `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
@@ -621,13 +621,28 @@ void CtrlIUAcom::executa()
 {
   bool fim = false;
   char resp;
+  int opt;
 
   while (!fim)
   {
     try
     {
-      cout << "Eh noix" << endl;
-      cin >> resp;
+      cout << "+--------------------------+" << endl
+           << "|Cadastrar Acomodacao   - " << CtrlIUAcom::CAD_ACOM << "|" << endl
+           << "|Sair                   - 5|" << endl
+           << "+--------------------------+" << endl
+           << "|Opcao:";
+      cin >> opt;
+
+      switch (opt)
+      {
+      case CtrlIUAcom::CAD_ACOM:
+        cout << "CADASTRA" << endl;
+        break;
+      case 5:
+        fim = true;
+        break;
+      }
     }
     catch (const exception &ex)
     {
@@ -644,6 +659,26 @@ void CtrlIUAcom::executa()
 /************* CONTROLADORA DE INTERFACE DE USUARIO - ACOMODACAO ***********/
 
 /************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
+
+void CtrlServAcom::cadastrarAcomodacao(string id, Acomodacao acom)
+{
+  int rc;
+
+  //TODO: Existe Acomodacao()
+
+  string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (tipo,capacidade,cidade,estado,diaria,dono) VALUES(";
+  SQL_INSERT_ACOM += acom.get_tipo() + ",";
+  SQL_INSERT_ACOM += acom.get_capacidade() + ",";
+  SQL_INSERT_ACOM += "'" + acom.get_cidade() + "',";
+  SQL_INSERT_ACOM += "'" + acom.get_estado() + "',";
+  SQL_INSERT_ACOM += "'" + to_string(acom.get_diaria()) + "',";
+  SQL_INSERT_ACOM += "'" + id + "');";
+
+  rc = CtrlServ::executa(SQL_INSERT_ACOM);
+
+  trata_retorno(rc);
+}
+
 void CtrlServAcom::buscarAcomodacoes(string id)
 {
   char resp;

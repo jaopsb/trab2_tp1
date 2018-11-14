@@ -119,6 +119,7 @@ class CtrlServAcom : public CtrlServ, public IServAcom
 {
 public:
   void buscarAcomodacoes(string);
+  void cadastrarAcomodacao(string, Acomodacao);
 };
 
 class CtrlIUAcom

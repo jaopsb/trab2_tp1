@@ -40,6 +40,7 @@ class IServAcom
 {
 public:
   virtual void buscarAcomodacoes(string) = 0;
+  virtual void cadastrarAcomodacao(string, Acomodacao) = 0;
 };
 
 #endif //INTERFACES_H
