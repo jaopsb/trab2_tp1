@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <ctype.h>
+#include <stdlib.h>
 #include <typeinfo>
 #include "dominios.hpp"
 #include "Entidades.hpp"
@@ -11,9 +13,10 @@
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
 char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`id`	INTEGER,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	REAL NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
-char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
-char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER PRIMARY KEY AUTOINCREMENT, `NUMERO` TEXT NOT NULL, `AGENDA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
-char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
+char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` INTEGER NOT NULL );";
+char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER , `NUMERO` TEXT NOT NULL, `AGENCIA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
+char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER , `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
+char *SQL_INSERT_USUARIO_ADMIN = "insert into USUARIO (identificador,nome,senha) values ('admin','Administrador','Admin123!');";
 /************ SCRIPTS CRIACAO DO BANCO *************/
 
 /***************FUNCOES AUXILIARES************/
@@ -30,13 +33,11 @@ bool trata_retorno(int rc)
     throw invalid_argument("Identificador ja utilizado!");
     break;
   case SQLITE_ERROR:
-    throw invalid_argument("Erro no servi�o!");
+    throw invalid_argument("Erro no servico!");
     break;
 
   default:
-
     throw invalid_argument(to_string(rc));
-
     break;
   }
 }
@@ -149,6 +150,9 @@ void CtrlIUUsu::executa()
   ctrl = new CtrlServUsu();
 
   int opt = 0;
+
+  u = ctrl->buscarUsuario(identificador->get_identificador());
+
   while (opt != 5)
   {
     system("cls");
@@ -157,6 +161,7 @@ void CtrlIUUsu::executa()
     cout << "Remover Usuario           - " << CtrlIUUsu::DEL_USU << endl;
     cout << "Editar dados              - " << CtrlIUUsu::EDIT_USU << endl;
     cout << "Cadastrar Conta corrente  - " << CtrlIUUsu::REG_CONTAC << endl;
+    cout << "Remover Conta corrente    - " << CtrlIUUsu::DEL_CONTAC << endl;
     cout << "Sair                      - 5" << endl;
     cout << "Selecione a opcao: ";
     cin >> opt;
@@ -174,6 +179,9 @@ void CtrlIUUsu::executa()
       break;
     case CtrlIUUsu::REG_CONTAC:
       CtrlIUUsu::cadastrarCC();
+      break;
+    case CtrlIUUsu::DEL_CONTAC:
+      CtrlIUUsu::deletarCC();
       break;
     default:
       break;
@@ -231,13 +239,62 @@ void CtrlIUUsu::cadastrarCC()
       } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
       if (resp == 's' || resp == 'S')
       {
-        cout << "chamando Controladora para cadastrar conta corrente";
+        ctrl->cadastraContaCorrente(u->get_identificador(),
+                                    num_conta.get_numero_conta_corrente(),
+                                    agencia.get_agencia(),
+                                    banco.get_banco());
+
+        cout << "Conta corrente cadastrada com sucesso. presisone enter para retornar ao menu" << endl;
+        getchar();
+        getchar();
         fim = true;
       }
     }
     catch (const exception &ia)
     {
       cout << "ERRO - " << ia.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+void CtrlIUUsu::deletarCC()
+{
+  char resp;
+  bool fim = false;
+
+  while (!fim)
+  {
+    try
+    {
+
+      Conta_corrente *cc = ctrl->buscarContaCorrente(u->get_identificador());
+      cout << "Deletar Conta Corrente?" << endl;
+      cout << "Conta - " << cc->get_numero() << endl
+           << "Agencia - " << cc->get_agencia() << endl
+           << "Banco - " << cc->get_banco() << endl;
+      cout << "(s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->deletarContaCorrente(u->get_identificador());
+        cout << "Conta corrente removida com sucesso, pressione enter para retornar ao menu";
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &e)
+    {
+      cout << "Erro - " << e.what() << endl;
       cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
       cin >> resp;
       if (resp == 'N' || resp == 'n')
@@ -432,6 +489,32 @@ void CtrlIUUsu::deletar()
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
 /************* CONTROLADORA DE SERVICOS DE USUARIO - *************/
+Conta_corrente *CtrlServUsu::buscarContaCorrente(string id)
+{
+  int rc;
+  Conta_corrente *cc;
+  sqlite3_stmt *stmt;
+  if (!CtrlServUsu::existeContaCorrente(id))
+    throw runtime_error("Nao existe conta corrente cadastrada para este usuario");
+
+  string SQL_SELECT_CC = "SELECT * FROM CONTACORRENTE WHERE ";
+  SQL_SELECT_CC += "id_usuario = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_CC);
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+
+      string nnum((char*)sqlite3_column_text(stmt,1));
+      int nagencia = atoi((char *)sqlite3_column_text(stmt, 2));
+      int nbanco = atoi((char *)sqlite3_column_text(stmt, 3));
+
+      cc = new Conta_corrente(nagencia, nbanco, nnum);
+  }
+  CtrlServ::finaliza();
+  return cc;
+}
+
 Usuario *CtrlServUsu::buscarUsuario(string id)
 {
   int rc;
@@ -462,7 +545,6 @@ Usuario *CtrlServUsu::buscarUsuario(string id)
 void CtrlServUsu::editarUsuario(string identificador, string nome, string senha)
 {
   int rc;
-  cout << 'alterando usuario';
 
   string SQL_EDIT_USUARIO = "UPDATE Usuario set ";
 
@@ -498,6 +580,42 @@ void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
 
   rc = CtrlServ::executa(SQL_DEL_USUARIO);
   trata_retorno(rc);
+}
+
+void CtrlServUsu::deletarContaCorrente(string id)
+{
+  int rc;
+
+  if (!CtrlServUsu::existeContaCorrente(id))
+    throw runtime_error("Nao existe conta cadastrada");
+
+  string SQL_DELETE_CC = "DELETE FROM CONTACORRENTE WHERE ";
+  SQL_DELETE_CC += "id_usuario = '" + id +"';";
+
+  rc = CtrlServ::executa(SQL_DELETE_CC);
+  trata_retorno(rc);
+}
+
+bool CtrlServUsu::existeContaCorrente(string id)
+{
+  int rc;
+  bool resultado = false;
+  sqlite3_stmt *stmt;
+
+  string SQL_SELECT_CC = "SELECT COUNT(*) FROM CONTACORRENTE WHERE ";
+  SQL_SELECT_CC += "id_usuario = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_CC);
+
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    int num = atoi(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+
+    resultado = num > 0;
+  }
+  CtrlServ::finaliza();
+  return resultado;
 }
 
 bool CtrlServUsu::existeUsuario(string id)
@@ -546,6 +664,29 @@ void CtrlServUsu::cadastrarUsuario(string id, string nome, string senha)
     throw invalid_argument("Usuario ja Cadastrado!");
 
   rc = CtrlServ::executa(SQL_INSERT_USUARIO);
+
+  trata_retorno(rc);
+  CtrlServ::finaliza();
+}
+
+void CtrlServUsu::cadastraContaCorrente(string id, string nconta, int nagencia, int nbanco)
+{
+  int rc;
+  sqlite3_stmt *stmt;
+
+  if (!CtrlServUsu::existeUsuario(id))
+    throw runtime_error("Usuario nao existe");
+
+  if (CtrlServUsu::existeContaCorrente(id))
+    throw runtime_error("Ja existe uma conta cadastrada,remova-a para cadastrar uma nova");
+
+  string SQL_INSERT_CC = "INSERT INTO CONTACORRENTE (ID_USUARIO,NUMERO,AGENCIA,BANCO) VALUES(";
+  SQL_INSERT_CC += "'" + id + "',";
+  SQL_INSERT_CC += "'" + nconta + "',";
+  SQL_INSERT_CC += to_string(nagencia) + ",";
+  SQL_INSERT_CC += to_string(nbanco) + ");";
+
+  rc = CtrlServ::executa(SQL_INSERT_CC);
 
   trata_retorno(rc);
   CtrlServ::finaliza();
@@ -631,6 +772,11 @@ bool CtrlServ::init_banco()
         if (sqlite3_step(stmt) == SQLITE_ERROR)
           throw sqlite3_errmsg(banco);
       }
+      //insere usuario Administrador
+      sqlite3_prepare_v2(banco, SQL_INSERT_USUARIO_ADMIN, -2, &stmt, NULL);
+
+      if (sqlite3_step(stmt) == SQLITE_ERROR)
+        throw sqlite3_errmsg(banco);
     }
     catch (char *msg)
     {

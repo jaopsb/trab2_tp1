@@ -369,6 +369,8 @@ void Numero_Cartao::validar(string valor) throw(invalid_argument)
 
   for (int i = nDigits - 1; i >= 0; i--)
   {
+    if (!isalpha(i))
+      throw invalid_argument("Numero de cartao invalido");
 
     int d = valor[i] - 'a';
 
@@ -409,7 +411,7 @@ void Numero_Conta_Corrente::validar(string valor) throw(invalid_argument)
   {
 
     if (isalpha(valor[i]))
-      throw("Numero da conta invalido, use apenas numeros");
+      throw invalid_argument("Numero da conta invalido, use apenas numeros");
 
     i++;
   }

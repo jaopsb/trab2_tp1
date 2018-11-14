@@ -88,7 +88,7 @@
 	"dominios.hpp"
 	"Controladoras.hpp"
 
-1540346224 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\dominios.cpp
+1542112241 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\dominios.cpp
 	"dominios.hpp"
 	<stdexcept>
 	<vector>
@@ -163,20 +163,23 @@
 	"Entidades.hpp"
 	"Testes.hpp"
 
-1541510027 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
+1542115887 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
 	<iostream>
 	<stdexcept>
 	<string>
 	<Testes.hpp>
 	"Controladoras.hpp"
 	"Interfaces.hpp"
-	"Stubs.h"
 
-1541512597 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\controladoras.cpp
+1542118639 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\controladoras.cpp
 	<iostream>
 	<sqlite3.h>
 	<vector>
 	<string>
+	<cstring>
+	<ctype.h>
+	<stdlib.h>
+	<typeinfo>
 	"dominios.hpp"
 	"Entidades.hpp"
 	"Controladoras.hpp"
@@ -189,7 +192,7 @@
 	<string>
 	<stdexcept>
 
-1541515623 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
+1542118027 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
 	"Interfaces.hpp"
 	"dominios.hpp"
 	<sqlite3.h>

@@ -4,7 +4,6 @@
 #include <Testes.hpp>
 #include "Controladoras.hpp"
 #include "Interfaces.hpp"
-#include "Stubs.h"
 
 using namespace std;
 
