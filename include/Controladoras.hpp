@@ -128,6 +128,8 @@ private:
   Identificador *identificador;
   IServAcom *ctrl;
 
+  void cadastra();
+
 public:
   CtrlIUAcom(string);
   const static int CAD_ACOM = 1;

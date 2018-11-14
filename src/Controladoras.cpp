@@ -627,6 +627,7 @@ void CtrlIUAcom::executa()
   {
     try
     {
+      system("cls");
       cout << "+--------------------------+" << endl
            << "|Cadastrar Acomodacao   - " << CtrlIUAcom::CAD_ACOM << "|" << endl
            << "|Sair                   - 5|" << endl
@@ -638,6 +639,7 @@ void CtrlIUAcom::executa()
       {
       case CtrlIUAcom::CAD_ACOM:
         cout << "CADASTRA" << endl;
+
         break;
       case 5:
         fim = true;
@@ -655,6 +657,10 @@ void CtrlIUAcom::executa()
       }
     }
   }
+}
+
+void CtrlIUAcom::cadastra()
+{
 }
 /************* CONTROLADORA DE INTERFACE DE USUARIO - ACOMODACAO ***********/
 
