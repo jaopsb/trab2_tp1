@@ -26,18 +26,17 @@ private:
 class Acomodacao
 {
 public:
-  Acomodacao(int, string, string, string, float, string, string, int);
+  Acomodacao(){};
+  Acomodacao(string, int, string, float, string, string, int);
+
+  void set_titulo(string);
+  string get_titulo() { return titulo; };
+
   void set_capacidade(int);
   int get_capacidade() { return capacidade.get_capacidade_acomodacao(); };
 
   void set_cidade(string);
   string get_cidade() { return cidade.get_nome(); };
-
-  void set_data_inicio(string);
-  string get_data_inicio() { return data_de_inicio.get_data(); };
-
-  void set_data_termino(string);
-  string get_data_termino() { return data_de_termino.get_data(); };
 
   void set_diaria(float);
   float get_diaria() { return diaria.get_diaria(); };
@@ -55,11 +54,10 @@ private:
   Identificador identificador;
   Tipo_Acomodacao tipo;
   Capacidade_Acomodacao capacidade;
-  Data data_de_inicio;
-  Data data_de_termino;
   Nome cidade;
   Estado estado;
   Diaria diaria;
+  string titulo;
 };
 
 class Cartao_de_Credito

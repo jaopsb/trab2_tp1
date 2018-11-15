@@ -2,6 +2,7 @@
 #define INTERFACES_H
 #include "dominios.hpp"
 #include "Entidades.hpp"
+#include <vector>
 #include <sqlite3.h>
 
 class IUAut
@@ -39,8 +40,8 @@ public:
 class IServAcom
 {
 public:
-  virtual void buscarAcomodacoes(string) = 0;
-  virtual void cadastrarAcomodacao(string, Acomodacao) = 0;
+  virtual vector<Acomodacao> buscarAcomodacoes(string) = 0;
+  virtual void cadastrarAcomodacao(Acomodacao) = 0;
 };
 
 #endif //INTERFACES_H

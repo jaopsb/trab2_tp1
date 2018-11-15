@@ -118,8 +118,8 @@ public:
 class CtrlServAcom : public CtrlServ, public IServAcom
 {
 public:
-  void buscarAcomodacoes(string);
-  void cadastrarAcomodacao(string, Acomodacao);
+  vector<Acomodacao> buscarAcomodacoes(string);
+  void cadastrarAcomodacao(Acomodacao);
 };
 
 class CtrlIUAcom
@@ -129,10 +129,12 @@ private:
   IServAcom *ctrl;
 
   void cadastra();
+  void buscarAcoms();
 
 public:
   CtrlIUAcom(string);
   const static int CAD_ACOM = 1;
+  const static int BUS_ACOMS = 2;
 
   void executa();
 

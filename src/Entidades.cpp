@@ -7,7 +7,7 @@ Usuario::Usuario(string id, string nome, string senha)
     set_senha(senha);
 }
 
-Usuario::Usuario(const char* id,const char* nome, const char* senha)
+Usuario::Usuario(const char *id, const char *nome, const char *senha)
 {
     set_identificador(id);
     set_nome(nome);
@@ -16,12 +16,11 @@ Usuario::Usuario(const char* id,const char* nome, const char* senha)
 
 Usuario::Usuario(){};
 
-Acomodacao::Acomodacao(int capacidade, string cidade, string data_in, string data_fim, float diaria, string estado, string id, int tipo)
+Acomodacao::Acomodacao(string titulo, int capacidade, string cidade, float diaria, string estado, string id, int tipo)
 {
+    set_titulo(titulo);
     set_capacidade(capacidade);
     set_cidade(cidade);
-    set_data_inicio(data_in);
-    set_data_termino(data_fim);
     set_diaria(diaria);
     set_estado(estado);
     set_identificador(id);
@@ -56,6 +55,11 @@ void Usuario::set_senha(string valor)
     senha.set_senha(valor);
 }
 
+void Acomodacao::set_titulo(string valor)
+{
+    titulo = valor;
+}
+
 void Acomodacao::set_capacidade(int valor)
 {
     capacidade.set_capacidade_acomodacao(valor);
@@ -64,16 +68,6 @@ void Acomodacao::set_capacidade(int valor)
 void Acomodacao::set_cidade(string valor)
 {
     cidade.set_nome(valor);
-}
-
-void Acomodacao::set_data_inicio(string valor)
-{
-    data_de_inicio.set_data(valor);
-}
-
-void Acomodacao::set_data_termino(string valor)
-{
-    data_de_termino.set_data(valor);
 }
 
 void Acomodacao::set_diaria(float valor)

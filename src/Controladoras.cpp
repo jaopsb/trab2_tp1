@@ -12,7 +12,7 @@
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
-char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`id`	INTEGER,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
+char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`titulo` TEXT NOT NULL,`id` INTEGER PRIMARY KEY AUTOINCREMENT ,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
 char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER , `NUMERO` TEXT NOT NULL, `AGENCIA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER , `id_usuario` INTEGER NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_incio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
@@ -50,6 +50,31 @@ string formata_senha(string senha)
     nSenha += '*';
   }
   return nSenha;
+}
+
+vector<int> formata_data(string data)
+{
+  string buff{""};
+  vector<int> retorno;
+
+  for (auto n : data)
+  {
+    if (n != '/')
+    {
+      buff += n;
+    }
+    else if ((n == '/') && buff != "")
+    {
+      retorno.push_back(stoi(buff));
+      buff = "";
+    }
+  }
+  if (buff != "")
+  {
+    retorno.push_back(stoi(buff));
+  }
+
+  return retorno;
 }
 
 /***************FUNCOES AUXILIARES************/
@@ -628,18 +653,21 @@ void CtrlIUAcom::executa()
     try
     {
       system("cls");
-      cout << "+--------------------------+" << endl
-           << "|Cadastrar Acomodacao   - " << CtrlIUAcom::CAD_ACOM << "|" << endl
-           << "|Sair                   - 5|" << endl
-           << "+--------------------------+" << endl
+      cout << "+---------------------------+" << endl
+           << "|Cadastrar Acomodacao    - " << CtrlIUAcom::CAD_ACOM << "|" << endl
+           << "|Buscar suas Acomodacoes - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
+           << "|Sair                    - 5|" << endl
+           << "+---------------------------+" << endl
            << "|Opcao:";
       cin >> opt;
 
       switch (opt)
       {
       case CtrlIUAcom::CAD_ACOM:
-        cout << "CADASTRA" << endl;
-
+        CtrlIUAcom::cadastra();
+        break;
+      case CtrlIUAcom::BUS_ACOMS:
+        CtrlIUAcom::buscarAcoms();
         break;
       case 5:
         fim = true;
@@ -659,38 +687,225 @@ void CtrlIUAcom::executa()
   }
 }
 
+void CtrlIUAcom::buscarAcoms()
+{
+  char resp;
+  bool fim = false;
+  while (!fim)
+  {
+    try
+    {
+      system("cls");
+      cout << "+-------------------+" << endl
+           << "|Suas de Acomodacoes|" << endl
+           << "+-------------------+" << endl;
+
+      vector<Acomodacao>
+          listaAcomdacoes = ctrl->buscarAcomodacoes(identificador->get_identificador());
+
+      for (int i = 0; i < listaAcomdacoes.size(); i++)
+      {
+        cout << endl
+             << "|Titulo - " << listaAcomdacoes.at(i).get_titulo() << endl
+             << "|Tipo - " << listaAcomdacoes.at(i).get_tipo() << endl
+             << "|Capacidade -  " << listaAcomdacoes.at(i).get_capacidade() << endl
+             << "|Estado - " << listaAcomdacoes.at(i).get_estado() << endl
+             << "|Cidade - " << listaAcomdacoes.at(i).get_cidade() << endl
+             << "|Diaria - R$ " << listaAcomdacoes.at(i).get_diaria() << endl;
+      }
+      getchar();
+      getchar();
+      fim = true;
+    }
+    catch (const exception &e)
+    {
+      cout << "-Erro :" << e.what() << "-" << endl;
+    }
+  }
+}
+
 void CtrlIUAcom::cadastra()
 {
+  char resp;
+  bool fim = false;
+
+  string titulo_entrada,
+      dt_in_entrada,
+      dt_fim_entrada,
+      cidade_entrada,
+      estado_entrada;
+
+  int tipo_entrada;
+
+  int capacidade_entrada;
+  float diaria_entrada;
+
+  while (!fim)
+  {
+    try
+    {
+      system("cls");
+      cout << "+--------------------+" << endl
+           << "|Cadastrar Acomodacao|" << endl
+           << "+--------------------+" << endl;
+
+      cout << "|Titulo da Acomodacao (Visibilidade eh a chave do negocio):";
+      getline(cin, titulo_entrada);
+      getline(cin, titulo_entrada);
+
+      if (titulo_entrada.empty() || titulo_entrada.compare(" ") == 0)
+        throw runtime_error("Titulo nao pode ser apenas um espaco vazio.");
+
+      cout << "|Capacidade da Acomodacao:";
+      cin >> capacidade_entrada;
+      Capacidade_Acomodacao *cap = new Capacidade_Acomodacao();
+      cap->set_capacidade_acomodacao(capacidade_entrada);
+      delete cap;
+
+      cout << "|Tipo de Acomodacao:" << endl
+           << "+---------------+" << endl
+           << "|Apartamento - 1|" << endl
+           << "|Casa        - 2|" << endl
+           << "|Flat        - 3|" << endl
+           << "+---------------+" << endl
+           << "|Opcao:";
+      do
+      {
+        cin >> tipo_entrada;
+      } while (tipo_entrada < 0 || tipo_entrada > 3);
+
+      cout << "|Cidade:";
+      cin >> cidade_entrada;
+      Nome *nome = new Nome();
+      nome->set_nome(cidade_entrada);
+      delete nome;
+
+      cout << "|Estado:";
+      cin >> estado_entrada;
+      Estado *estado = new Estado();
+      estado->set_estado(estado_entrada);
+      delete estado;
+
+      cout << "|Diaria:";
+      cin >> diaria_entrada;
+      Diaria *diaria = new Diaria();
+      diaria->set_diaria(diaria_entrada);
+      delete diaria;
+
+      cout << "#######################" << endl
+           << "#Confirmar cadastro?" << endl
+           << "#Titulo: " << titulo_entrada << endl
+           << "#Capacidade: " << capacidade_entrada << endl
+           << "#Diaria: R$" << diaria_entrada << endl
+           << "#Estado: " << estado_entrada << endl
+           << "#Tipo: " << tipo_entrada << endl
+           << "#######################" << endl
+           << "(s/S/n/N):";
+
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        Acomodacao acom(titulo_entrada,
+                        capacidade_entrada,
+                        cidade_entrada,
+                        diaria_entrada,
+                        estado_entrada,
+                        identificador->get_identificador(),
+                        tipo_entrada);
+
+        ctrl->cadastrarAcomodacao(acom);
+        cout << "-Cadastro de acomodacao feito com sucesso, pressione enter para retornar ao menu-" << endl;
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &ex)
+    {
+      cout << "ERRO - " << ex.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
 }
+
 /************* CONTROLADORA DE INTERFACE DE USUARIO - ACOMODACAO ***********/
 
 /************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
 
-void CtrlServAcom::cadastrarAcomodacao(string id, Acomodacao acom)
+static int callbackAcomodacoes(void *data, int argc, char **argv, char **azColName)
+{
+  int i;
+  Acomodacao acom;
+  int tipo, capacidade;
+  string cidade, estado, dono, titulo;
+  float diaria;
+
+  vector<Acomodacao> *lista = reinterpret_cast<vector<Acomodacao> *>(data);
+
+  acom.set_tipo(atoi(argv[1]));
+  acom.set_capacidade(atoi(argv[2]));
+  acom.set_cidade(argv[3]);
+  acom.set_estado(argv[4]);
+  acom.set_diaria(atof(argv[5]));
+  acom.set_identificador(argv[6]);
+  acom.set_titulo(argv[7]);
+
+  lista->push_back(acom);
+
+  return 0;
+}
+
+vector<Acomodacao> CtrlServAcom::buscarAcomodacoes(string id)
+{
+  int rc;
+  sqlite3_stmt *stmt;
+  const char *data;
+  char *zErrMsg = 0;
+
+  vector<Acomodacao> lista;
+
+  string SQL_SELECT_ACOMODACOES = "SELECT * FROM ACOMODACAO WHERE ";
+  SQL_SELECT_ACOMODACOES += "dono = '" + id + "';";
+
+  //transformar em uma funcao do CtrlServ para possiveis listas
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  rc = sqlite3_exec(banco, SQL_SELECT_ACOMODACOES.c_str(), callbackAcomodacoes, &lista, &zErrMsg);
+
+  return lista;
+}
+
+void CtrlServAcom::cadastrarAcomodacao(Acomodacao acom)
 {
   int rc;
 
   //TODO: Existe Acomodacao()
 
-  string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (tipo,capacidade,cidade,estado,diaria,dono) VALUES(";
-  SQL_INSERT_ACOM += acom.get_tipo() + ",";
-  SQL_INSERT_ACOM += acom.get_capacidade() + ",";
+  string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (titulo,tipo,capacidade,cidade,estado,diaria,dono) VALUES(";
+  SQL_INSERT_ACOM += "'" + acom.get_titulo() + "',";
+  SQL_INSERT_ACOM += to_string(acom.get_tipo()) + ",";
+  SQL_INSERT_ACOM += to_string(acom.get_capacidade()) + ",";
   SQL_INSERT_ACOM += "'" + acom.get_cidade() + "',";
   SQL_INSERT_ACOM += "'" + acom.get_estado() + "',";
   SQL_INSERT_ACOM += "'" + to_string(acom.get_diaria()) + "',";
-  SQL_INSERT_ACOM += "'" + id + "');";
+  SQL_INSERT_ACOM += "'" + acom.get_identificador() + "');";
 
   rc = CtrlServ::executa(SQL_INSERT_ACOM);
 
   trata_retorno(rc);
 }
 
-void CtrlServAcom::buscarAcomodacoes(string id)
-{
-  char resp;
-  cout << "Procurando acomodacoes" << endl;
-  cin >> resp;
-}
 /************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
 
 /************* CONTROLADORA DE SERVICOS - USUARIO *************/
