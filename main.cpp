@@ -11,85 +11,97 @@ const static int USUARIO = 1;
 const static int ACOMODACAO = 2;
 const static int RESERVA = 3;
 const static int SAIR = 5;
+const static int LOGOUT = 6;
 
 int main()
 {
-  bool fim = false;
+  bool nlogout = false;
   int opt;
   Usuario *usu;
 
   CtrlIUUsu *ctrlIUUsu;
   CtrlIUAcom *ctrlIUAcom;
-  try
+
+  while (!nlogout)
   {
-    //inciializacao do banco
-    CtrlServ *serv = new CtrlServ();
-    serv->init_banco();
-
-    delete serv; //servico feito
-
-    //iniciando sistema
-    CtrlIUAut *iuAut = new CtrlIUAut();
-
-    IServAut *ctrlAut = new CtrlServAut();
-
-    iuAut->setCtrlServAut(ctrlAut);
-
-    //autenticando acesso
-    RetornoLogin retorno = iuAut->autenticar();
-
-    if (!retorno.get_resultado())
-      throw runtime_error("Programa finalizado");
-
-    delete iuAut;
-    delete ctrlAut;
-
-    usu = retorno.get_usuario();
-
-    while (!fim)
+    try
     {
+      bool fim = false;
       system("cls");
-      cout << "+-------------------------+" << endl;
-      cout << "|Gerenciar Usuario     - " << USUARIO << "|" << endl;
-      cout << "|Gerenciar Acomodacao  - " << ACOMODACAO << "|" << endl;
-      cout << "|Sair                  - " << SAIR << "|" << endl;
-      cout << "+-------------------------+" << endl;
-      cout << "|Opcao:";
-      cin >> opt;
+      //inciializacao do banco
+      CtrlServ *serv = new CtrlServ();
+      serv->init_banco();
 
-      switch (opt)
+      delete serv; //servico feito
+
+      //iniciando sistema
+      CtrlIUAut *iuAut = new CtrlIUAut();
+
+      IServAut *ctrlAut = new CtrlServAut();
+
+      iuAut->setCtrlServAut(ctrlAut);
+
+      //autenticando acesso
+      RetornoLogin retorno = iuAut->autenticar();
+
+      if (!retorno.get_resultado())
+        throw runtime_error("Programa finalizado");
+
+      delete iuAut;
+      delete ctrlAut;
+
+      usu = retorno.get_usuario();
+
+      while (!fim)
       {
-      case 1:
-      {
-        ctrlIUUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
-        IServUsu *ctrl = new CtrlServUsu();
-        ctrlIUUsu->setCtrlServ(ctrl);
-        ctrlIUUsu->executa();
-        delete ctrlIUUsu;
-        delete ctrl;
-        break;
-      }
-      case 2:
-      {
-        ctrlIUAcom = new CtrlIUAcom(usu->get_identificador());
-        IServAcom *ctrl = new CtrlServAcom();
-        ctrlIUAcom->setCtrlServ(ctrl);
-        ctrlIUAcom->executa();
-        delete ctrlIUAcom;
-        delete ctrl;
-        break;
-      }
-      case 5:
-      {
-        fim = true;
-        break;
-      }
+        system("cls");
+        cout << "+-------------------------+" << endl;
+        cout << "|Gerenciar Usuario     - " << USUARIO << "|" << endl;
+        cout << "|Gerenciar Acomodacao  - " << ACOMODACAO << "|" << endl;
+        cout << "|Sair                  - " << SAIR << "|" << endl;
+        cout << "|Logout                - " << LOGOUT << "|" << endl;
+        cout << "+-------------------------+" << endl;
+        cout << "|Opcao:";
+        cin >> opt;
+
+        switch (opt)
+        {
+        case USUARIO:
+        {
+          ctrlIUUsu = new CtrlIUUsu(usu->get_identificador(), usu->get_senha());
+          IServUsu *ctrl = new CtrlServUsu();
+          ctrlIUUsu->setCtrlServ(ctrl);
+          ctrlIUUsu->executa();
+          delete ctrlIUUsu;
+          delete ctrl;
+          break;
+        }
+        case ACOMODACAO:
+        {
+          ctrlIUAcom = new CtrlIUAcom(usu->get_identificador());
+          IServAcom *ctrl = new CtrlServAcom();
+          ctrlIUAcom->setCtrlServ(ctrl);
+          ctrlIUAcom->executa();
+          delete ctrlIUAcom;
+          delete ctrl;
+          break;
+        }
+        case SAIR:
+        {
+          fim = true;
+          nlogout = true;
+          break;
+        }
+        case LOGOUT:
+          fim = true;
+          break;
+        }
       }
     }
-  }
-  catch (const exception &ex)
-  {
-    cout << ex.what() << endl;
+    catch (const exception &ex)
+    {
+      cout << ex.what() << endl;
+    }
   }
   return 0;
 }

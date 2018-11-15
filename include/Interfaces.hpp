@@ -41,8 +41,10 @@ class IServAcom
 {
 public:
   virtual vector<Acomodacao> buscarAcomodacoes(string) = 0;
+  virtual vector<Acomodacao> buscarAcomodacoesParaReserva(string id) = 0;
   virtual void cadastrarAcomodacao(Acomodacao) = 0;
   virtual void removerAcomodacao(Acomodacao) = 0;
+  virtual void cadastrarReserva(string, Acomodacao, string, string) = 0;
 };
 
 #endif //INTERFACES_H

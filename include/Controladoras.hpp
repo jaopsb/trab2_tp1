@@ -119,10 +119,15 @@ public:
 class CtrlServAcom : public CtrlServ, public IServAcom
 {
 private:
+  bool existeReserva(int, string, string);
+
 public:
   vector<Acomodacao> buscarAcomodacoes(string);
+  vector<Acomodacao> buscarAcomodacoesParaReserva(string);
   void cadastrarAcomodacao(Acomodacao);
   void removerAcomodacao(Acomodacao);
+
+  void cadastrarReserva(string, Acomodacao, string, string);
 };
 
 class CtrlIUAcom
@@ -135,11 +140,14 @@ private:
   void buscarAcoms();
   void deletarAcom();
 
+  void cadastrarReserva();
+
 public:
   CtrlIUAcom(string);
   const static int CAD_ACOM = 1;
   const static int BUS_ACOMS = 2;
   const static int DEL_ACOM = 3;
+  const static int REG_RES = 4;
 
   void executa();
 
