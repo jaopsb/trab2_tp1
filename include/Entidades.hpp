@@ -50,6 +50,9 @@ public:
   void set_tipo(int);
   int get_tipo() { return tipo.get_tipo_acomodacao(); };
 
+  void set_id_acomodacao(int);
+  int get_id_acomodacao() { return id_acomodacao; };
+
 private:
   Identificador identificador;
   Tipo_Acomodacao tipo;
@@ -58,6 +61,7 @@ private:
   Estado estado;
   Diaria diaria;
   string titulo;
+  int id_acomodacao;
 };
 
 class Cartao_de_Credito

@@ -136,34 +136,6 @@ RetornoLogin CtrlIUAut::autenticar()
 
 /*************CONTROLADORA DE INTERFACE DE USUARIO - AUTENTICACAO********/
 
-/************* CONTROLADORA DE SERVICOS *************/
-
-int CtrlServ::executa(string sql)
-{
-  int rc;
-  sqlite3 *banco = CtrlServ::get_banco();
-
-  if (!CtrlServ::bd_criado())
-    CtrlServ::init_banco();
-
-  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
-
-  sqlite3_prepare_v2(banco, sql.c_str(), -2, &stmt, NULL);
-
-  rc = sqlite3_step(stmt);
-
-  sqlite3_close(banco);
-  return rc;
-}
-
-void CtrlServ::finaliza()
-{
-  sqlite3_finalize(stmt);
-  sqlite3_close(banco);
-}
-
-/************* CONTROLADORA DE SERVICOS *************/
-
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 void CtrlIUUsu::setCtrlServ(IServUsu *serv)
 {
@@ -655,7 +627,8 @@ void CtrlIUAcom::executa()
       system("cls");
       cout << "+---------------------------+" << endl
            << "|Cadastrar Acomodacao    - " << CtrlIUAcom::CAD_ACOM << "|" << endl
-           << "|Buscar suas Acomodacoes - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
+           << "|Ver Acomodacoes         - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
+           << "|Remover Acomodacoes     - " << CtrlIUAcom::DEL_ACOM << "|" << endl
            << "|Sair                    - 5|" << endl
            << "+---------------------------+" << endl
            << "|Opcao:";
@@ -668,6 +641,9 @@ void CtrlIUAcom::executa()
         break;
       case CtrlIUAcom::BUS_ACOMS:
         CtrlIUAcom::buscarAcoms();
+        break;
+      case CtrlIUAcom::DEL_ACOM:
+        CtrlIUAcom::deletarAcom();
         break;
       case 5:
         fim = true;
@@ -720,6 +696,64 @@ void CtrlIUAcom::buscarAcoms()
     catch (const exception &e)
     {
       cout << "-Erro :" << e.what() << "-" << endl;
+    }
+  }
+}
+
+void CtrlIUAcom::deletarAcom()
+{
+  int opt;
+  char resp;
+  bool fim = false;
+
+  while (!fim)
+  {
+    try
+    {
+      vector<Acomodacao> listaAcomdacoes = ctrl->buscarAcomodacoes(identificador->get_identificador());
+
+      for (int i = 0; i < listaAcomdacoes.size(); i++)
+      {
+        cout << "+--------------+" << endl
+             << "|Acomodacao -" << i << "|" << endl
+             << "+--------------+" << endl
+             << "|Titulo - " << listaAcomdacoes.at(i).get_titulo() << endl;
+      }
+      cout << "Selecione a acomodacao pelo numero:";
+      cin >> opt;
+      Acomodacao acom = listaAcomdacoes.at(opt);
+
+      cout << "#Confirmar remocao de acomodacao?#" << endl
+           << "|Acomodacao - " << opt << endl
+           << "|Titulo - " << acom.get_titulo() << endl
+           << "(s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->removerAcomodacao(acom);
+        cout << "-Acomodacao removida com sucesso,pressione enter para retornar ao menu-" << endl;
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &e)
+    {
+      cout << "-Erro: " << e.what() << "-" << endl
+           << "Deseja tentar novamente?" << endl
+           << " (s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+      if (resp == 'n' || resp == 'N')
+      {
+        fim = true;
+      }
     }
   }
 }
@@ -849,8 +883,12 @@ static int callbackAcomodacoes(void *data, int argc, char **argv, char **azColNa
   string cidade, estado, dono, titulo;
   float diaria;
 
+  if (argc == 0)
+    throw runtime_error("Nao existem acomodacoes cadastradas");
+
   vector<Acomodacao> *lista = reinterpret_cast<vector<Acomodacao> *>(data);
 
+  acom.set_id_acomodacao(atoi(argv[0]));
   acom.set_tipo(atoi(argv[1]));
   acom.set_capacidade(atoi(argv[2]));
   acom.set_cidade(argv[3]);
@@ -876,7 +914,6 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoes(string id)
   string SQL_SELECT_ACOMODACOES = "SELECT * FROM ACOMODACAO WHERE ";
   SQL_SELECT_ACOMODACOES += "dono = '" + id + "';";
 
-  //transformar em uma funcao do CtrlServ para possiveis listas
   sqlite3 *banco = CtrlServ::get_banco();
 
   sqlite3_open(CtrlServ::get_nome_banco(), &banco);
@@ -884,6 +921,22 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoes(string id)
   rc = sqlite3_exec(banco, SQL_SELECT_ACOMODACOES.c_str(), callbackAcomodacoes, &lista, &zErrMsg);
 
   return lista;
+}
+
+void CtrlServAcom::removerAcomodacao(Acomodacao acom)
+{
+  int rc;
+
+  string SQL_DELETE_ACOM = "DELETE FROM ACOMODACAO WHERE ";
+  SQL_DELETE_ACOM += "id = " + to_string(acom.get_id_acomodacao()) + " and ";
+  SQL_DELETE_ACOM += "dono = '" + acom.get_identificador() + "' and ";
+  SQL_DELETE_ACOM += "titulo = '" + acom.get_titulo() + "';";
+
+  cout << SQL_DELETE_ACOM << endl;
+
+  rc = CtrlServ::executa(SQL_DELETE_ACOM);
+
+  trata_retorno(rc);
 }
 
 void CtrlServAcom::cadastrarAcomodacao(Acomodacao acom)
@@ -1247,6 +1300,30 @@ Usuario *CtrlServAut::autenticar(Identificador &id, Senha &senha)
 /****CONTROLADORA DE SERVICOS BASE ********/
 
 bool CtrlServ::banco_criado = false;
+
+int CtrlServ::executa(string sql)
+{
+  int rc;
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  if (!CtrlServ::bd_criado())
+    CtrlServ::init_banco();
+
+  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  sqlite3_prepare_v2(banco, sql.c_str(), -2, &stmt, NULL);
+
+  rc = sqlite3_step(stmt);
+
+  sqlite3_close(banco);
+  return rc;
+}
+
+void CtrlServ::finaliza()
+{
+  sqlite3_finalize(stmt);
+  sqlite3_close(banco);
+}
 
 bool CtrlServ::init_banco()
 {

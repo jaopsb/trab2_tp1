@@ -90,6 +90,11 @@ void Acomodacao::set_tipo(int valor)
     tipo.set_tipo_acomodacao(valor);
 }
 
+void Acomodacao::set_id_acomodacao(int valor)
+{
+    id_acomodacao = valor;
+}
+
 void Cartao_de_Credito::set_numero(string valor)
 {
     numero.set_numero_cartao(valor);

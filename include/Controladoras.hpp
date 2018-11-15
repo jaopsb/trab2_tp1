@@ -27,6 +27,7 @@ public:
   sqlite3 *get_banco() { return banco; }
   sqlite3_stmt *get_stmt() { return stmt; }
   int executa(string);
+  int executa(string, int (*callback)(void));
   void finaliza();
   bool init_banco();
 };
@@ -117,9 +118,11 @@ public:
 
 class CtrlServAcom : public CtrlServ, public IServAcom
 {
+private:
 public:
   vector<Acomodacao> buscarAcomodacoes(string);
   void cadastrarAcomodacao(Acomodacao);
+  void removerAcomodacao(Acomodacao);
 };
 
 class CtrlIUAcom
@@ -130,11 +133,13 @@ private:
 
   void cadastra();
   void buscarAcoms();
+  void deletarAcom();
 
 public:
   CtrlIUAcom(string);
   const static int CAD_ACOM = 1;
   const static int BUS_ACOMS = 2;
+  const static int DEL_ACOM = 3;
 
   void executa();
 
