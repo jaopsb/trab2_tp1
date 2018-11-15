@@ -27,7 +27,7 @@ class Acomodacao
 {
 public:
   Acomodacao(){};
-  Acomodacao(string, int, string, float, string, string, int);
+  Acomodacao(string, int, string, float, string, string, int, string, string);
 
   void set_titulo(string);
   string get_titulo() { return titulo; };
@@ -53,6 +53,13 @@ public:
   void set_id_acomodacao(int);
   int get_id_acomodacao() { return id_acomodacao; };
 
+  void set_data_disponibilidade_inicio(string);
+
+  string get_data_disponibilidade_inicio() { return dt_dis_inicio.get_data(); };
+
+  void set_data_disponibilidade_fim(string);
+  string get_data_disponibilidade_fim(){return dt_dis_fim.get_data();};
+
 private:
   Identificador identificador;
   Tipo_Acomodacao tipo;
@@ -61,6 +68,8 @@ private:
   Estado estado;
   Diaria diaria;
   string titulo;
+  Data dt_dis_inicio;
+  Data dt_dis_fim;
   int id_acomodacao;
 };
 

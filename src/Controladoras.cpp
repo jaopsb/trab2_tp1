@@ -12,7 +12,7 @@
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
-char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`titulo` TEXT NOT NULL,`id` INTEGER PRIMARY KEY AUTOINCREMENT ,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`));";
+char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`titulo` TEXT NOT NULL,`id` INTEGER PRIMARY KEY AUTOINCREMENT ,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`),dt_dis_in TEXT NOT NULL, dt_dis_fim TEXT NOT NULL);";
 char *SQL_STMT_CREATE_CARTAO = "CREATE TABLE IF NOT EXISTS 'CARTAO' ( `ID` INTEGER ,`NUMERO` TEXT NOT NULL, `DT_VALIDADE` TEXT NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_CONTACORRENTE = "CREATE TABLE IF NOT EXISTS 'CONTACORRENTE' ( `ID` INTEGER , `NUMERO` TEXT NOT NULL, `AGENCIA` INTEGER NOT NULL, `BANCO` INTEGER NOT NULL, `ID_USUARIO` TEXT NOT NULL );";
 char *SQL_STMT_CREATE_RESERVA = "CREATE TABLE IF NOT EXISTS `RESERVA` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_usuario` TEXT NOT NULL, `id_acomodacao` INTEGER NOT NULL, `data_inicio` TEXT NOT NULL, `data_fim` TEXT NOT NULL );";
@@ -785,12 +785,13 @@ void CtrlIUAcom::cadastrarReserva()
           cin >> data_inicio;
           Data *dt_in = new Data();
           dt_in->set_data(data_inicio);
+          delete dt_in;
 
           cout << "|Data de fim:";
           cin >> data_fim;
           Data *dt_fim = new Data();
           dt_fim->set_data(data_fim);
-
+          delete dt_fim;
           periodo_valido(data_inicio, data_fim);
 
           //verificar se o usuario tem cartao de credito
@@ -1014,6 +1015,19 @@ void CtrlIUAcom::cadastra()
       diaria->set_diaria(diaria_entrada);
       delete diaria;
 
+      cout << "|Disponibilidade:" << endl
+           << "|Data de inicio:";
+      cin >> dt_in_entrada;
+      Data *dt_in = new Data();
+      dt_in->set_data(dt_in_entrada);
+
+      cout << "|Data de fim:";
+      cin >> dt_fim_entrada;
+      Data *dt_fim = new Data();
+      dt_fim->set_data(dt_fim_entrada);
+
+      periodo_valido(dt_in_entrada, dt_fim_entrada);
+
       cout << "#######################" << endl
            << "#Confirmar cadastro?" << endl
            << "#Titulo: " << titulo_entrada << endl
@@ -1021,6 +1035,7 @@ void CtrlIUAcom::cadastra()
            << "#Diaria: R$" << diaria_entrada << endl
            << "#Estado: " << estado_entrada << endl
            << "#Tipo: " << tipo_entrada << endl
+           << "#Disponibilidade: " << dt_in_entrada << " a " << dt_fim_entrada << endl
            << "#######################" << endl
            << "(s/S/n/N):";
 
@@ -1037,7 +1052,9 @@ void CtrlIUAcom::cadastra()
                         diaria_entrada,
                         estado_entrada,
                         identificador->get_identificador(),
-                        tipo_entrada);
+                        tipo_entrada,
+                        dt_in_entrada,
+                        dt_fim_entrada);
 
         ctrl->cadastrarAcomodacao(acom);
         cout << "-Cadastro de acomodacao feito com sucesso, pressione enter para retornar ao menu-" << endl;
@@ -1159,18 +1176,21 @@ void CtrlServAcom::cadastrarAcomodacao(Acomodacao acom)
 
   //TODO: Existe Acomodacao()
 
-  string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (titulo,tipo,capacidade,cidade,estado,diaria,dono) VALUES(";
+  string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (titulo,tipo,capacidade,cidade,estado,diaria,dono,dt_dis_in,dt_dis_fim) VALUES(";
   SQL_INSERT_ACOM += "'" + acom.get_titulo() + "',";
   SQL_INSERT_ACOM += to_string(acom.get_tipo()) + ",";
   SQL_INSERT_ACOM += to_string(acom.get_capacidade()) + ",";
   SQL_INSERT_ACOM += "'" + acom.get_cidade() + "',";
   SQL_INSERT_ACOM += "'" + acom.get_estado() + "',";
   SQL_INSERT_ACOM += "'" + to_string(acom.get_diaria()) + "',";
-  SQL_INSERT_ACOM += "'" + acom.get_identificador() + "');";
+  SQL_INSERT_ACOM += "'" + acom.get_identificador() + "',";
+  SQL_INSERT_ACOM += "'" + acom.get_data_disponibilidade_inicio() + "',";
+  SQL_INSERT_ACOM += "'" + acom.get_data_disponibilidade_fim() + "');";
 
   rc = CtrlServ::executa(SQL_INSERT_ACOM);
 
   trata_retorno(rc);
+  CtrlServ::finaliza();
 }
 
 bool CtrlServAcom::existeReserva(int id_acom, string dt_inicio, string dt_fim)

@@ -444,7 +444,7 @@ void Teste_Usuario::testa_usuario_erro() throw(invalid_argument)
 /*\brief Validação da inserção de valores para uma Acomodação que correspondem a especificação*/
 void Teste_Acomodacao::testa_acomodacao_ok()
 {
-  Acomodacao acom = Acomodacao("teste acomodacao ok",1, "Brasilia", 150.40, "DF", "ideok", 1);
+  Acomodacao acom = Acomodacao("teste acomodacao ok",1, "Brasilia", 150.40, "DF", "ideok", 1,"10/jun/1994","10/jun/2004");
 }
 
 /*\brief Validação da inserção de valores para uma Acomodação que não correspondem a especificação*/
@@ -454,7 +454,7 @@ void Teste_Acomodacao::testa_acomodacao_erro() throw(invalid_argument)
 
   try
   {
-    Acomodacao acom = Acomodacao("teste acomodacao erro",0, "uhdshasiu", 0, "yduyda", "iadshydasyhi189", 0);
+    Acomodacao acom = Acomodacao("teste acomodacao erro",0, "uhdshasiu", 0, "yduyda", "iadshydasyhi189", 0,"13/reuhr/1239","31/dsjd/39393");
   }
   catch (const invalid_argument &ia)
   {

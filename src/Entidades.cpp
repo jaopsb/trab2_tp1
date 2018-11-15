@@ -16,7 +16,7 @@ Usuario::Usuario(const char *id, const char *nome, const char *senha)
 
 Usuario::Usuario(){};
 
-Acomodacao::Acomodacao(string titulo, int capacidade, string cidade, float diaria, string estado, string id, int tipo)
+Acomodacao::Acomodacao(string titulo, int capacidade, string cidade, float diaria, string estado, string id, int tipo, string dt_dis_in, string dt_dis_fim)
 {
     set_titulo(titulo);
     set_capacidade(capacidade);
@@ -25,6 +25,8 @@ Acomodacao::Acomodacao(string titulo, int capacidade, string cidade, float diari
     set_estado(estado);
     set_identificador(id);
     set_tipo(tipo);
+    set_data_disponibilidade_inicio(dt_dis_in);
+    set_data_disponibilidade_fim(dt_dis_fim);
 }
 
 Cartao_de_Credito::Cartao_de_Credito(string numero, string data_val)
@@ -93,6 +95,16 @@ void Acomodacao::set_tipo(int valor)
 void Acomodacao::set_id_acomodacao(int valor)
 {
     id_acomodacao = valor;
+}
+
+void Acomodacao::set_data_disponibilidade_inicio(string valor)
+{
+    dt_dis_inicio.set_data(valor);
+}
+
+void Acomodacao::set_data_disponibilidade_fim(string valor)
+{
+    dt_dis_fim.set_data(valor);
 }
 
 void Cartao_de_Credito::set_numero(string valor)

@@ -238,10 +238,10 @@
 	<string>
 	<stdexcept>
 
-1542296045 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\entidades.cpp
+1542316569 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\entidades.cpp
 	"Entidades.hpp"
 
-1542296047 c:\users\hiarr\desktop\projetos\trab2_tp1\include\entidades.hpp
+1542317443 c:\users\hiarr\desktop\projetos\trab2_tp1\include\entidades.hpp
 	<dominios.hpp>
 
 1540485409 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\sqlite3.c
@@ -306,7 +306,7 @@
 1540485409 c:\users\hiarr\desktop\projetos\trab2_tp1\include\sqlite3.h
 	<stdarg.h>
 
-1542246337 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\testes.cpp
+1542317490 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\testes.cpp
 	<iostream>
 	<stdexcept>
 	"dominios.hpp"
@@ -360,7 +360,7 @@
 	<vector>
 	<sqlite3.h>
 
-1542314388 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
+1542317606 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
 	<iostream>
 	<sqlite3.h>
 	<vector>
