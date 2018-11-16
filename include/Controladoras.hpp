@@ -68,6 +68,9 @@ private:
   bool existeUsuario(string);
   bool existeContaCorrente(string);
   bool existeCartaodeCredito(string);
+  bool existeAcomodacao(string);
+  bool existeReserva(string);
+  bool existeReservaEmAcomodacao(string);
 
 public:
   void cadastrarUsuario(string, string, string);

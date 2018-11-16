@@ -851,7 +851,7 @@ void CtrlIUAcom::deletarReservas()
       if (resp == 's' || resp == 'S')
       {
         ctrl->removerReserva(resv);
-        cout << "-Reserver removida com sucesso,pressione enter para retornar ao menu-" << endl;
+        cout << "-Reserva removida com sucesso,pressione enter para retornar ao menu-" << endl;
         getchar();
         getchar();
       }
@@ -1634,6 +1634,9 @@ void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
   if (!CtrlServUsu::existeUsuario(id_del))
     throw runtime_error("O Usuario nao existe!");
 
+  if (CtrlServUsu::existeAcomodacaoReservada(id_del))
+    throw runtime_error("Existem reservas em acomodacoes do usuario");
+
   if (CtrlServUsu::existeContaCorrente(id_del))
     CtrlServUsu::deletarContaCorrente(id_del);
 
@@ -1661,6 +1664,48 @@ void CtrlServUsu::deletarContaCorrente(string id)
 
   rc = CtrlServ::executa(SQL_DELETE_CC);
   trata_retorno(rc);
+}
+
+bool CtrlServUsu::existeAcomodacaoReservada(string id)
+{
+  int rc;
+  bool resultado = false;
+  sqlite3_stmt *stmt;
+
+  string SQL_SELECT_ACOMODACAO_RESERVA = "SELECT COUNT(*) FROM ACOMDACAO as acom, RESERVA as resv WHERE ";
+  SQL_SELECT_ACOMODACAO_RESERVA += "acom.dono = '" + id + "' and acom.id = resv.id_acomodacao;";
+
+  rc = CtrlServ::executa(SQL_SELECT_ACOMODACAO_RESERVA);
+
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+    resultado = num > 0;
+  }
+
+  return resultado;
+}
+
+bool CtrlServUsu::existeReserva(string id)
+{
+  int rc;
+  bool resultado = false;
+  sqlite3_stmt *stmt;
+
+  string SQL_SELECT_RESERVA = "SELECT COUNT(*) FROM RESERVA WHERE ";
+  SQL_SELECT_RESERVA += "id_usuario = '" + id + "'";
+
+  rc = CtrlServ::executa(SQL_SELECT_RESERVA);
+
+  if (trata_retorno(rc))
+  {
+    stmt = CtrlServ::get_stmt();
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+
+    resultado = num > 0;
+  }
+  return resultado;
 }
 
 bool CtrlServUsu::existeContaCorrente(string id)
