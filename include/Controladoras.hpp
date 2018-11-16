@@ -124,10 +124,13 @@ private:
 public:
   vector<Acomodacao> buscarAcomodacoes(string);
   vector<Acomodacao> buscarAcomodacoesParaReserva(string);
+  vector<Reserva> buscarReservas(string);
+
   void cadastrarAcomodacao(Acomodacao);
   void removerAcomodacao(Acomodacao);
 
   void cadastrarReserva(string, Acomodacao, string, string);
+  void removerReserva(Reserva);
 };
 
 class CtrlIUAcom
@@ -141,6 +144,8 @@ private:
   void deletarAcom();
 
   void cadastrarReserva();
+  void buscarReservas();
+  void deletarReservas();
 
 public:
   CtrlIUAcom(string);
@@ -148,6 +153,8 @@ public:
   const static int BUS_ACOMS = 2;
   const static int DEL_ACOM = 3;
   const static int REG_RES = 4;
+  const static int BUS_RES = 6;
+  const static int DEL_RES = 7;
 
   void executa();
 

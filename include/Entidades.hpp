@@ -2,6 +2,38 @@
 #define ENTIDADES_H
 #include <dominios.hpp>
 
+class Reserva
+{
+public:
+  Reserva(){};
+  Reserva(string, string, string, string, string, int);
+
+  void set_titulo(string);
+  string get_titulo() { return titulo.get_nome(); };
+
+  void set_data_inicio(string);
+  string get_data_inicio() { return data_inicio.get_data(); };
+
+  void set_data_fim(string);
+  string get_data_fim() { return data_fim.get_data(); };
+
+  void set_cidade(string);
+  string get_cidade() { return cidade.get_nome(); };
+
+  void set_estado(string);
+  string get_estado() { return estado.get_estado(); };
+
+  void set_id_reserva(int);
+  int get_id_reserva() { return id_reserva; };
+
+private:
+  Nome titulo;
+  Data data_inicio, data_fim;
+  Nome cidade;
+  Estado estado;
+  int id_reserva;
+};
+
 class Usuario
 {
 public:
@@ -58,7 +90,7 @@ public:
   string get_data_disponibilidade_inicio() { return dt_dis_inicio.get_data(); };
 
   void set_data_disponibilidade_fim(string);
-  string get_data_disponibilidade_fim(){return dt_dis_fim.get_data();};
+  string get_data_disponibilidade_fim() { return dt_dis_fim.get_data(); };
 
 private:
   Identificador identificador;

@@ -42,6 +42,46 @@ Conta_corrente::Conta_corrente(int agencia, int banco, string numero)
     set_numero(numero);
 }
 
+Reserva::Reserva(string titulo, string data_in, string data_fim, string cidade, string estado, int id_reserva)
+{
+    set_titulo(titulo);
+    set_data_inicio(data_in);
+    set_data_fim(data_fim);
+    set_cidade(cidade);
+    set_estado(estado);
+    set_id_reserva(id_reserva);
+}
+
+void Reserva::set_titulo(string valor)
+{
+    titulo.set_nome(valor);
+}
+
+void Reserva::set_data_inicio(string valor)
+{
+    data_inicio.set_data(valor);
+}
+
+void Reserva::set_data_fim(string valor)
+{
+    data_fim.set_data(valor);
+}
+
+void Reserva::set_cidade(string valor)
+{
+    cidade.set_nome(valor);
+}
+
+void Reserva::set_estado(string valor)
+{
+    estado.set_estado(valor);
+}
+
+void Reserva::set_id_reserva(int valor)
+{
+    id_reserva = valor;
+}
+
 void Usuario::set_identificador(string valor)
 {
     identificador.set_identificador(valor);

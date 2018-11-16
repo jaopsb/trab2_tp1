@@ -142,6 +142,63 @@ void periodo_valido(string dt_inicio, string dt_fim)
   }
 }
 
+void periodo_valido(string dt_inicio, string dt_fim, string dt_dis_inicio, string dt_dis_fim)
+{
+  int resultado;
+
+  vector<int> vdt1 = formata_data(dt_inicio);
+  vector<int> vdt2 = formata_data(dt_fim);
+  vector<int> vdt_dis1 = formata_data(dt_dis_inicio);
+  vector<int> vdt_dis2 = formata_data(dt_dis_fim);
+
+  if (vdt1.at(2) > vdt2.at(2))
+    throw runtime_error("O ano da data de inicio nao pode ser maior que o da data de fim");
+
+  if (vdt1.at(2) == vdt2.at(2))
+  {
+    if (vdt1.at(1) > vdt2.at(1))
+    {
+      throw runtime_error("O mes da data de inicio nao pode ser maior que o da data de fim");
+    }
+    else if (vdt1.at(1) == vdt2.at(1))
+    {
+      if (vdt1.at(0) > vdt2.at(0))
+        throw runtime_error("O dia da data de inicio nao pode ser maior que o da data de fim");
+    }
+  }
+
+  //validando intervalo de ano da reserva com o intervalo da disponibilidade
+  if ((vdt1.at(2) < vdt_dis1.at(2)) ||
+      (vdt1.at(2) > vdt_dis2.at(2)) ||
+      (vdt2.at(2) < vdt_dis1.at(2)) ||
+      (vdt2.at(2) > vdt_dis2.at(2)))
+    throw runtime_error("Periodo fora da disponibilidade da acomodacao");
+
+  if (vdt1.at(2) == vdt_dis1.at(2))
+  {
+    if (vdt1.at(1) < vdt_dis1.at(1))
+      throw runtime_error("Periodo fora da disponibilidade da acomodacao");
+
+    if (vdt1.at(1) == vdt_dis1.at(1))
+    {
+      if (vdt1.at(0) < vdt_dis1.at(0))
+        throw runtime_error("Periodo fora da disponibilidade da acomodacao");
+    }
+  }
+
+  if (vdt2.at(2) == vdt_dis2.at(2))
+  {
+    if (vdt2.at(1) > vdt_dis2.at(1))
+      throw runtime_error("Perioodo fora da disponibilidade da acomodacao");
+
+    if (vdt2.at(1) == vdt_dis2.at(1))
+    {
+      if (vdt2.at(0) > vdt_dis2.at(0))
+        throw runtime_error("Periodo fora da disponibilidade da acomodacao");
+    }
+  }
+}
+
 string formata_senha(string senha)
 {
   string nSenha;
@@ -705,6 +762,8 @@ void CtrlIUAcom::executa()
            << "|Ver Acomodacoes                    - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
            << "|Remover Acomodacoes                - " << CtrlIUAcom::DEL_ACOM << "|" << endl
            << "|Reservar Acomodacao por um periodo - " << CtrlIUAcom::REG_RES << "|" << endl
+           << "|Ver Reservas                       - " << CtrlIUAcom::BUS_RES << "|" << endl
+           << "|Remover Reservas                   - " << CtrlIUAcom::DEL_RES << "|" << endl
            << "|Sair                               - 5|" << endl
            << "+--------------------------------------+" << endl
            << "|Opcao:";
@@ -724,6 +783,12 @@ void CtrlIUAcom::executa()
       case CtrlIUAcom::REG_RES:
         CtrlIUAcom::cadastrarReserva();
         break;
+      case CtrlIUAcom::BUS_RES:
+        CtrlIUAcom::buscarReservas();
+        break;
+      case CtrlIUAcom::DEL_RES:
+        CtrlIUAcom::deletarReservas();
+        break;
       case 5:
         fim = true;
         break;
@@ -738,6 +803,110 @@ void CtrlIUAcom::executa()
       {
         fim = true;
       }
+    }
+  }
+}
+
+void CtrlIUAcom::deletarReservas()
+{
+  bool fim = false;
+  char resp;
+  int opt;
+  while (!fim)
+  {
+    try
+    {
+      system("cls");
+
+      vector<Reserva> listaReserva = ctrl->buscarReservas(identificador->get_identificador());
+
+      cout << "+----------------+" << endl
+           << "|Deletar Reservas|" << endl
+           << "+----------------+" << endl;
+
+      for (int i = 0; i < listaReserva.size(); i++)
+      {
+        cout << "|" << i << "-" << endl
+             << "|Titulo: " << listaReserva.at(i).get_titulo() << endl
+             << "|Estado: " << listaReserva.at(i).get_estado() << "\t|Cidade: " << listaReserva.at(i).get_cidade() << endl
+             << "|Periodo: " << listaReserva.at(i).get_data_inicio() << " a " << listaReserva.at(i).get_data_fim() << endl
+             << endl;
+      }
+
+      cout << "|Selecione a reserva:";
+      cin >> opt;
+
+      Reserva resv = listaReserva.at(opt);
+
+      cout << "#Confirmar remocao de reserva?#" << endl
+           << "|Titulo: " << resv.get_titulo() << endl
+           << "|Estado: " << resv.get_estado() << endl
+           << "|Periodo: " << resv.get_data_inicio() << " a " << resv.get_data_fim() << endl
+           << "(s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+
+      if (resp == 's' || resp == 'S')
+      {
+        ctrl->removerReserva(resv);
+        cout << "-Reserver removida com sucesso,pressione enter para retornar ao menu-" << endl;
+        getchar();
+        getchar();
+      }
+      fim = true;
+    }
+    catch (const exception &e)
+    {
+      cout << "-Erro: " << e.what() << "-" << endl
+           << "Deseja tentar novamente?" << endl
+           << " (s/S/n/N):";
+      do
+      {
+        cin >> resp;
+      } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+      if (resp == 'n' || resp == 'N')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+void CtrlIUAcom::buscarReservas()
+{
+  bool fim = false;
+
+  while (!fim)
+  {
+    try
+    {
+      system("cls");
+
+      vector<Reserva> listaReserva = ctrl->buscarReservas(identificador->get_identificador());
+
+      cout << "+---------------------+" << endl
+           << "|Suas Reservas        |" << endl
+           << "+---------------------+" << endl;
+
+      for (int i = 0; i < listaReserva.size(); i++)
+      {
+        cout << "|Titulo: " << listaReserva.at(i).get_titulo() << endl
+             << "|Estado: " << listaReserva.at(i).get_estado() << "\t|Cidade: " << listaReserva.at(i).get_cidade() << endl
+             << "|Periodo: " << listaReserva.at(i).get_data_inicio() << " a " << listaReserva.at(i).get_data_fim() << endl
+             << endl;
+      }
+      getchar();
+      getchar();
+      fim = true;
+    }
+    catch (const exception &e)
+    {
+      cout << "-Erro :" << e.what() << "-" << endl;
+      getchar();
+      getchar();
+      fim = true;
     }
   }
 }
@@ -764,6 +933,7 @@ void CtrlIUAcom::cadastrarReserva()
              << "|" << i << "- Acomodacao: " << lista.at(i).get_titulo() << endl
              << "|Tipo: " << get_tipo_acomodacao(lista.at(i).get_tipo()) << endl
              << "|Diaria: " << lista.at(i).get_diaria() << endl
+             << "|Disponibilidade: " << lista.at(i).get_data_disponibilidade_inicio() << " a " << lista.at(i).get_data_disponibilidade_fim() << endl
              << "|Dono: " << lista.at(i).get_identificador() << endl
              << endl;
       }
@@ -792,11 +962,15 @@ void CtrlIUAcom::cadastrarReserva()
           Data *dt_fim = new Data();
           dt_fim->set_data(data_fim);
           delete dt_fim;
-          periodo_valido(data_inicio, data_fim);
+
+          periodo_valido(data_inicio,
+                         data_fim,
+                         acom.get_data_disponibilidade_inicio(),
+                         acom.get_data_disponibilidade_fim());
 
           //verificar se o usuario tem cartao de credito
 
-          cout << "|Confirmar?" << endl
+          cout << "|Confirmar rserva?" << endl
                << "|Acomodacao: " << acom.get_titulo() << endl
                << "|Data de inicio: " << data_inicio << "\t |Data de fim: " << data_fim << endl
                << "(s/S/n/N):";
@@ -871,7 +1045,8 @@ void CtrlIUAcom::buscarAcoms()
              << "|Capacidade -  " << listaAcomdacoes.at(i).get_capacidade() << endl
              << "|Estado - " << listaAcomdacoes.at(i).get_estado() << endl
              << "|Cidade - " << listaAcomdacoes.at(i).get_cidade() << endl
-             << "|Diaria - R$ " << listaAcomdacoes.at(i).get_diaria() << endl;
+             << "|Diaria - R$ " << listaAcomdacoes.at(i).get_diaria() << endl
+             << "|Disponibilidade - " << listaAcomdacoes.at(i).get_data_disponibilidade_inicio() << " a " << listaAcomdacoes.at(i).get_data_disponibilidade_fim() << endl;
       }
       getchar();
       getchar();
@@ -1082,11 +1257,7 @@ void CtrlIUAcom::cadastra()
 
 static int callbackAcomodacoes(void *data, int argc, char **argv, char **azColName)
 {
-  int i;
   Acomodacao acom;
-  int tipo, capacidade;
-  string cidade, estado, dono, titulo;
-  float diaria;
 
   if (argc == 0)
     throw runtime_error("Nao existem acomodacoes cadastradas");
@@ -1101,7 +1272,8 @@ static int callbackAcomodacoes(void *data, int argc, char **argv, char **azColNa
   acom.set_diaria(atof(argv[5]));
   acom.set_identificador(argv[6]);
   acom.set_titulo(argv[7]);
-
+  acom.set_data_disponibilidade_inicio(argv[8]);
+  acom.set_data_disponibilidade_fim(argv[9]);
   lista->push_back(acom);
 
   return 0;
@@ -1123,9 +1295,6 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoesParaReserva(string id)
   sqlite3_open(CtrlServ::get_nome_banco(), &banco);
 
   rc = sqlite3_exec(banco, SQL_SELECT_ACOMODACOES.c_str(), callbackAcomodacoes, &lista, &zErrMsg);
-
-  if (lista.size() == 0)
-    throw runtime_error("Nao existem Acomodacoes disponiveis");
 
   return lista;
 }
@@ -1199,9 +1368,9 @@ bool CtrlServAcom::existeReserva(int id_acom, string dt_inicio, string dt_fim)
   bool resultado = false;
 
   string SQL_SELECT_RESERVA = "SELECT COUNT(*) FROM RESERVA WHERE ";
-  SQL_SELECT_RESERVA += "id_acomodacao = " + to_string(id_acom) + " and ";
-  SQL_SELECT_RESERVA += "data_inicio = '" + dt_inicio + "' and ";
-  SQL_SELECT_RESERVA += "data_fim = '" + dt_fim + "';";
+  SQL_SELECT_RESERVA += "id_acomodacao = " + to_string(id_acom) + " and (";
+  SQL_SELECT_RESERVA += "data_inicio = '" + dt_inicio + "' or ";
+  SQL_SELECT_RESERVA += "data_fim = '" + dt_fim + "');";
 
   cout << SQL_SELECT_RESERVA << endl;
 
@@ -1232,6 +1401,58 @@ void CtrlServAcom::cadastrarReserva(string id, Acomodacao acom, string data_inic
   cout << SQL_INSERT_RESERVA << endl;
 
   rc = CtrlServ::executa(SQL_INSERT_RESERVA);
+  trata_retorno(rc);
+  CtrlServ::finaliza();
+}
+
+static int callbackReservas(void *data, int argc, char **argv, char **azColName)
+{
+  Reserva resv;
+
+  if (argc == 0)
+    throw runtime_error("Nao existem reservas");
+
+  vector<Reserva> *lista = reinterpret_cast<vector<Reserva> *>(data);
+
+  resv.set_id_reserva(atoi(argv[0]));
+  resv.set_titulo(argv[1]);
+  resv.set_data_inicio(argv[2]);
+  resv.set_data_fim(argv[3]);
+  resv.set_cidade(argv[4]);
+  resv.set_estado(argv[5]);
+
+  lista->push_back(resv);
+
+  return 0;
+}
+
+vector<Reserva> CtrlServAcom::buscarReservas(string id)
+{
+  int rc;
+  vector<Reserva> lista;
+  char *zErrMsg = 0;
+
+  string SQL_SELECT_RESERVA = "select rer.id,acom.titulo,rer.data_inicio,rer.data_fim,acom.cidade,acom.estado from RESERVA rer,ACOMODACAO acom where";
+  SQL_SELECT_RESERVA += " id_usuario = '" + id + "'";
+  SQL_SELECT_RESERVA += " and rer.id_acomodacao = acom.id;";
+
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  rc = sqlite3_exec(banco, SQL_SELECT_RESERVA.c_str(), callbackReservas, &lista, &zErrMsg);
+
+  return lista;
+}
+
+void CtrlServAcom::removerReserva(Reserva resv)
+{
+  int rc;
+
+  string SQL_DELETE_RESERVA = "DELETE FROM RESERVA WHERE ";
+  SQL_DELETE_RESERVA += "id = " + to_string(resv.get_id_reserva()) + ";";
+
+  rc = CtrlServ::executa(SQL_DELETE_RESERVA);
   trata_retorno(rc);
   CtrlServ::finaliza();
 }
