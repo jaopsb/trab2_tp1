@@ -447,6 +447,7 @@ void CtrlIUUsu::cadastrarCC()
   {
     try
     {
+
       cout << endl;
       cout << "|Cadastrar Conta Corrente" << endl;
       cout << "|Numero da conta:";
@@ -691,29 +692,24 @@ void CtrlIUUsu::deletar()
 {
   bool fim = false;
   char resp;
-  Identificador id;
-  string id_del;
 
   while (!fim)
   {
     try
     {
-      cout << "identificador do Usuario a ser deletado:";
-      cin >> id_del;
-      id.set_identificador(id_del);
-
       do
       {
-        cout << "Confimar remover o usuario - " << id_del << "?" << endl
+        cout << "Confimar remover o usuario - " << u->get_identificador() << "?" << endl
              << "(s/S/n/N):" << endl;
         cin >> resp;
       } while (resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
 
       if (resp == 's' || resp == 'S')
       {
-        ctrl->deletarUsuario(identificador->get_identificador(), id_del);
+        ctrl->deletarUsuario(identificador->get_identificador());
 
         cout << "Usuario deletado, pressione enter para retornar ao menu" << endl;
+        CtrlIUUsu::setIsLogado(true);
         getchar();
         getchar();
       }
@@ -760,7 +756,7 @@ void CtrlIUAcom::executa()
       cout << "+--------------------------------------+" << endl
            << "|Cadastrar Acomodacao               - " << CtrlIUAcom::CAD_ACOM << "|" << endl
            << "|Suas Acomodacoes                   - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
-           << "|Todas Acomodacoes                  - " << CtrlIUAcom::BUS_TF_ACOMS << "|" << endl
+           << "|Todas Acomodacoes                  - " << CtrlIUAcom::BUS_TD_ACOMS << "|" << endl
            << "|Remover Acomodacoes                - " << CtrlIUAcom::DEL_ACOM << "|" << endl
            << "|Reservar Acomodacao por um periodo - " << CtrlIUAcom::REG_RES << "|" << endl
            << "|Ver Reservas                       - " << CtrlIUAcom::BUS_RES << "|" << endl
@@ -790,7 +786,7 @@ void CtrlIUAcom::executa()
       case CtrlIUAcom::DEL_RES:
         CtrlIUAcom::deletarReservas();
         break;
-      case CtrlIUAcom::BUS_TF_ACOMS:
+      case CtrlIUAcom::BUS_TD_ACOMS:
         CtrlIUAcom::buscarTdAcoms();
         break;
       case 5:
@@ -831,8 +827,16 @@ void CtrlIUAcom::buscarTdAcoms()
 
       for (int i = 0; i < listaAcomdacoes.size(); i++)
       {
-        cout << "|Acomodacao: " << 
+        cout << "|Acomodacao: " << listaAcomdacoes.at(i).get_titulo() << endl
+             << "|Tipo: " << listaAcomdacoes.at(i).get_tipo() << endl
+             << "|Diaria: " << listaAcomdacoes.at(i).get_diaria() << endl
+             << "|Disponibilidade: " << listaAcomdacoes.at(i).get_data_disponibilidade_inicio() << " a " << listaAcomdacoes.at(i).get_data_disponibilidade_fim() << endl
+             << "|Dono: " << listaAcomdacoes.at(i).get_identificador() << endl
+             << endl;
       }
+      getchar();
+      getchar();
+      fim = true;
     }
     catch (const exception &ex)
     {
@@ -1213,7 +1217,8 @@ void CtrlIUAcom::cadastra()
       } while (tipo_entrada < 0 || tipo_entrada > 3);
 
       cout << "|Cidade:";
-      cin >> cidade_entrada;
+      getline(cin, cidade_entrada);
+      getline(cin, cidade_entrada);
       Nome *nome = new Nome();
       nome->set_nome(cidade_entrada);
       delete nome;
@@ -1235,11 +1240,13 @@ void CtrlIUAcom::cadastra()
       cin >> dt_in_entrada;
       Data *dt_in = new Data();
       dt_in->set_data(dt_in_entrada);
+      delete dt_in;
 
       cout << "|Data de fim:";
       cin >> dt_fim_entrada;
       Data *dt_fim = new Data();
       dt_fim->set_data(dt_fim_entrada);
+      delete dt_fim;
 
       periodo_valido(dt_in_entrada, dt_fim_entrada);
 
@@ -1339,6 +1346,26 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoesParaReserva(string id)
   return lista;
 }
 
+vector<Acomodacao> CtrlServAcom::buscarAcomodacoes()
+{
+  int rc;
+  sqlite3_stmt *stmt;
+  const char *data;
+  char *zErrMsg = 0;
+
+  vector<Acomodacao> lista;
+
+  string SQL_SELECT_ACOMODACAO = "SELECT * FROM ACOMODACAO;";
+
+  sqlite3 *banco = CtrlServ::get_banco();
+
+  sqlite3_open(CtrlServ::get_nome_banco(), &banco);
+
+  rc = sqlite3_exec(banco, SQL_SELECT_ACOMODACAO.c_str(), callbackAcomodacoes, &lista, &zErrMsg);
+
+  return lista;
+}
+
 vector<Acomodacao> CtrlServAcom::buscarAcomodacoes(string id)
 {
   int rc;
@@ -1379,11 +1406,35 @@ void CtrlServAcom::removerAcomodacao(Acomodacao acom)
   trata_retorno(rc);
 }
 
+bool CtrlServAcom::existeAcomodacao(string titulo, string id)
+{
+  int rc;
+  bool resultado = false;
+
+  string SQL_SELECT_ACOMODACAO = "SELECT COUNT(*) FROM ACOMODACAO WHERE ";
+  SQL_SELECT_ACOMODACAO += "titulo = '" + titulo + "' and ";
+  SQL_SELECT_ACOMODACAO == "dono = '" + id + "';";
+
+  rc = CtrlServ::executa(SQL_SELECT_ACOMODACAO);
+
+  if (trata_retorno(rc))
+  {
+    sqlite3_stmt *stmt = CtrlServ::get_stmt();
+
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+    resultado = num > 0;
+  }
+
+  CtrlServ::finaliza();
+  return resultado;
+}
+
 void CtrlServAcom::cadastrarAcomodacao(Acomodacao acom)
 {
   int rc;
 
-  //TODO: Existe Acomodacao()
+  if (CtrlServAcom::existeAcomodacao(acom.get_titulo(), acom.get_identificador()))
+    throw runtime_error("Ja existe uma acomodacao com este titulo");
 
   string SQL_INSERT_ACOM = "INSERT INTO ACOMODACAO (titulo,tipo,capacidade,cidade,estado,diaria,dono,dt_dis_in,dt_dis_fim) VALUES(";
   SQL_INSERT_ACOM += "'" + acom.get_titulo() + "',";
@@ -1662,31 +1713,27 @@ void CtrlServUsu::editarUsuario(string identificador, string nome, string senha)
   trata_retorno(rc);
 }
 
-void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
+void CtrlServUsu::deletarUsuario(string id_usu)
 {
   int rc;
   sqlite3_stmt *stmt;
 
-  //TODO:rever isso aqui
-  if (id_usu.compare(id_del) == 0)
-    throw runtime_error("O Usuario nao pode deletar sua propria conta");
-
-  if (!CtrlServUsu::existeUsuario(id_del))
+  if (!CtrlServUsu::existeUsuario(id_usu))
     throw runtime_error("O Usuario nao existe!");
 
-  if (CtrlServUsu::existeReservaEmAcomodacao(id_del))
+  if (CtrlServUsu::existeReservaEmAcomodacao(id_usu))
     throw runtime_error("Existem reservas em acomodacoes do usuario");
 
-  if (CtrlServUsu::existeContaCorrente(id_del))
-    CtrlServUsu::deletarContaCorrente(id_del);
+  if (CtrlServUsu::existeContaCorrente(id_usu))
+    CtrlServUsu::deletarContaCorrente(id_usu);
 
-  if (CtrlServUsu::existeCartaodeCredito(id_del))
-    CtrlServUsu::deletarCartaodeCredito(id_del);
+  if (CtrlServUsu::existeCartaodeCredito(id_usu))
+    CtrlServUsu::deletarCartaodeCredito(id_usu);
 
   //verificar se tem: reserva, acomodacao
 
   string SQL_DEL_USUARIO = "DELETE FROM Usuario WHERE ";
-  SQL_DEL_USUARIO += "identificador = '" + id_del + "'";
+  SQL_DEL_USUARIO += "identificador = '" + id_usu + "'";
 
   rc = CtrlServ::executa(SQL_DEL_USUARIO);
   trata_retorno(rc);
@@ -1712,8 +1759,10 @@ bool CtrlServUsu::existeReservaEmAcomodacao(string id)
   bool resultado = false;
   sqlite3_stmt *stmt;
 
-  string SQL_SELECT_ACOMODACAO_RESERVA = "SELECT COUNT(*) FROM ACOMDACAO as acom, RESERVA as resv WHERE ";
+  string SQL_SELECT_ACOMODACAO_RESERVA = "SELECT COUNT(*) FROM ACOMODACAO as acom, RESERVA as resv WHERE ";
   SQL_SELECT_ACOMODACAO_RESERVA += "acom.dono = '" + id + "' and acom.id = resv.id_acomodacao;";
+
+  cout << SQL_SELECT_ACOMODACAO_RESERVA << endl;
 
   rc = CtrlServ::executa(SQL_SELECT_ACOMODACAO_RESERVA);
 
@@ -1775,7 +1824,6 @@ bool CtrlServUsu::existeUsuario(string id)
   int rc;
   bool resultado = false;
   sqlite3_stmt *stmt;
-  const char *zero("0"); //valor padrao para validacao
 
   //comando de selecao que conta quantos usuarios existem com o identificador dado
   //deve ser retornado 0 ou 1
@@ -1783,20 +1831,13 @@ bool CtrlServUsu::existeUsuario(string id)
   SQL_SELECT_USUARIO += "identificador = '" + id + "';";
 
   rc = CtrlServ::executa(SQL_SELECT_USUARIO);
+
   if (trata_retorno(rc))
   {
     stmt = CtrlServ::get_stmt();
-    //convertendo void* para cosnt char* da resposta do banco
-    const char *num = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
 
-    if (strcmp(num, zero) == 0)
-    {
-      resultado = false;
-    }
-    else
-    {
-      resultado = true;
-    }
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+    resultado = num > 0;
   }
   CtrlServ::finaliza();
   return resultado;

@@ -18,7 +18,7 @@ int main()
   bool nlogout = false;
   int opt;
   Usuario *usu;
-
+  bool delUsu = false;
   CtrlIUUsu *ctrlIUUsu;
   CtrlIUAcom *ctrlIUAcom;
 
@@ -72,6 +72,7 @@ int main()
           IServUsu *ctrl = new CtrlServUsu();
           ctrlIUUsu->setCtrlServ(ctrl);
           ctrlIUUsu->executa();
+          delUsu = ctrlIUUsu->isUsuarioLogado();
           delete ctrlIUUsu;
           delete ctrl;
           break;
@@ -96,6 +97,8 @@ int main()
           fim = true;
           break;
         }
+        if (delUsu)
+          fim = true;
       }
     }
     catch (const exception &ex)

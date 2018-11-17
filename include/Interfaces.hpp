@@ -32,7 +32,7 @@ public:
 
   virtual void editarUsuario(string, string, string) = 0;
 
-  virtual void deletarUsuario(string, string) = 0;
+  virtual void deletarUsuario(string) = 0;
   virtual void deletarContaCorrente(string) = 0;
   virtual void deletarCartaodeCredito(string) = 0;
 };
