@@ -5,6 +5,13 @@
 #include "Controladoras.hpp"
 #include "Interfaces.hpp"
 
+#ifdef _WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
+
 using namespace std;
 
 const static int USUARIO = 1;
@@ -27,7 +34,7 @@ int main()
     try
     {
       bool fim = false;
-      system("cls");
+      system(CLEAR);
       //inciializacao do banco
       CtrlServ *serv = new CtrlServ();
       serv->init_banco();
@@ -54,7 +61,7 @@ int main()
 
       while (!fim)
       {
-        system("cls");
+        system(CLEAR);
         cout << "+-------------------------+" << endl;
         cout << "|Gerenciar Usuario     - " << USUARIO << "|" << endl;
         cout << "|Gerenciar Acomodacao  - " << ACOMODACAO << "|" << endl;

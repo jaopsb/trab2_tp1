@@ -10,6 +10,14 @@
 #include "Entidades.hpp"
 #include "Controladoras.hpp"
 
+//definindo tipo de limpeza de tela
+#ifdef _WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
+
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
 char *SQL_STMT_CREATE_ACOMODACAO = "CREATE TABLE IF NOT EXISTS `ACOMODACAO` (`titulo` TEXT NOT NULL,`id` INTEGER PRIMARY KEY AUTOINCREMENT ,`tipo`	INTEGER NOT NULL,`capacidade`	INTEGER NOT NULL,`cidade`	TEXT NOT NULL,`estado`	INTEGER NOT NULL,`diaria`	TEXT NOT NULL,`dono`	TEXT,PRIMARY KEY(`dono`),dt_dis_in TEXT NOT NULL, dt_dis_fim TEXT NOT NULL);";
@@ -241,7 +249,7 @@ RetornoLogin CtrlIUAut::autenticar()
       cout << "Senha:";
       cin >> snh;
       senha->set_senha(snh);
-      system("cls"); //windows
+      system(CLEAR); //windows
 
       //TODO retornar o usuario
       Usuario *usu = ctrlServAut->autenticar(*identificador, *senha);
@@ -282,7 +290,7 @@ void CtrlIUUsu::executa()
 
   while (opt != 5)
   {
-    system("cls");
+    system(CLEAR);
     cout << "|Painel Usuario - " << identificador->get_identificador() << " |" << endl;
     cout << "+-------------------------------+" << endl;
     cout << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << "|" << endl;
@@ -398,7 +406,7 @@ void CtrlIUUsu::cadastrarCdC()
       cin >> dtVal;
       data_val.set_data_validade(dtVal);
 
-      system("cls");
+      system(CLEAR);
       cout << "###############################" << endl
            << "#Confirmar cadastro de Cartao?#" << endl
            << "#Numero: " << num << "     #" << endl
@@ -461,7 +469,7 @@ void CtrlIUUsu::cadastrarCC()
       cin >> nbanco;
       banco.set_banco(nbanco);
 
-      system("cls");
+      system(CLEAR);
 
       cout << "##########################" << endl
            << "#Confirmar Cadastro?     #" << endl
@@ -652,7 +660,7 @@ void CtrlIUUsu::cadastrar()
       cin >> senha;
       sn.set_senha(senha);
 
-      system("cls");
+      system(CLEAR);
 
       cout << "Confirmar cadastro?" << endl
            << "Nome: " << n.get_nome() << "\t"
@@ -756,7 +764,7 @@ void CtrlIUAcom::executa()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
       cout << "+--------------------------------------+" << endl
            << "|Cadastrar Acomodacao               - " << CtrlIUAcom::CAD_ACOM << "|" << endl
            << "|Suas Acomodacoes                   - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
@@ -856,7 +864,7 @@ void CtrlIUAcom::deletarReservas()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
 
       vector<Reserva> listaReserva = ctrl->buscarReservas(identificador->get_identificador());
 
@@ -922,7 +930,7 @@ void CtrlIUAcom::buscarReservas()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
 
       vector<Reserva> listaReserva = ctrl->buscarReservas(identificador->get_identificador());
 
@@ -1069,7 +1077,7 @@ void CtrlIUAcom::buscarAcoms()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
       cout << "+-------------------+" << endl
            << "|Suas de Acomodacoes|" << endl
            << "+-------------------+" << endl;
@@ -1112,7 +1120,7 @@ void CtrlIUAcom::deletarAcom()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
 
       vector<Acomodacao> listaAcomdacoes = ctrl->buscarAcomodacoes(identificador->get_identificador());
 
@@ -1182,7 +1190,7 @@ void CtrlIUAcom::cadastra()
   {
     try
     {
-      system("cls");
+      system(CLEAR);
       cout << "+--------------------+" << endl
            << "|Cadastrar Acomodacao|" << endl
            << "+--------------------+" << endl;
