@@ -32,7 +32,7 @@ public:
 
   virtual void editarUsuario(string, string, string) = 0;
 
-  virtual void deletarUsuario(string) = 0;
+  virtual bool deletarUsuario(string) = 0;
   virtual void deletarContaCorrente(string) = 0;
   virtual void deletarCartaodeCredito(string) = 0;
 };
@@ -50,6 +50,8 @@ public:
 
   virtual void cadastrarReserva(string, Acomodacao, string, string) = 0;
   virtual void removerReserva(Reserva) = 0;
+
+  virtual bool podeCadastrarAcomodacao(string) =0;
 };
 
 #endif //INTERFACES_H

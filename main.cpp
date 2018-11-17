@@ -25,7 +25,7 @@ int main()
   bool nlogout = false;
   int opt;
   Usuario *usu;
-  bool delUsu = false;
+  bool delUsu = true;
   CtrlIUUsu *ctrlIUUsu;
   CtrlIUAcom *ctrlIUAcom;
 
@@ -104,8 +104,10 @@ int main()
           fim = true;
           break;
         }
-        if (delUsu)
+        if (!delUsu)
+        {
           fim = true;
+        }
       }
     }
     catch (const exception &ex)

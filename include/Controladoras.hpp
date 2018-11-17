@@ -83,7 +83,7 @@ public:
 
   void editarUsuario(string, string, string);
 
-  void deletarUsuario(string);
+  bool deletarUsuario(string);
   void deletarContaCorrente(string);
   void deletarCartaodeCredito(string);
 };
@@ -98,7 +98,7 @@ private:
   bool isLogado = true;
 
   void cadastrar();
-  void deletar();
+  bool deletar();
   void editar();
   void cadastrarCC(); //conta corrente
   void deletarCC();
@@ -141,6 +141,8 @@ public:
 
   void cadastrarReserva(string, Acomodacao, string, string);
   void removerReserva(Reserva);
+
+  bool podeCadastrarAcomodacao(string);
 };
 
 class CtrlIUAcom

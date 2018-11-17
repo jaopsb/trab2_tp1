@@ -12,11 +12,10 @@
 
 //definindo tipo de limpeza de tela
 #ifdef _WIN32
-	#define CLEAR "cls"
+#define CLEAR "cls"
 #else
-	#define CLEAR "clear"
+#define CLEAR "clear"
 #endif
-
 
 /************* SCRIPTS CRIACAO DO BANCO ************/
 char *SQL_STMT_CREATE_USUARIO = "CREATE TABLE IF NOT EXISTS `USUARIO` ( `ID` INTEGER, `IDENTIFICADOR` TEXT NOT NULL UNIQUE, `NOME` TEXT NOT NULL, `SENHA` TEXT NOT NULL, PRIMARY KEY(`IDENTIFICADOR`,`ID`));";
@@ -284,31 +283,32 @@ void CtrlIUUsu::setCtrlServ(IServUsu *serv)
 
 void CtrlIUUsu::executa()
 {
+  bool fim = false;
   int opt = 0;
 
   u = ctrl->buscarUsuario(identificador->get_identificador());
 
-  while (opt != 5)
+  while (!fim)
   {
     system(CLEAR);
-    cout << "|Painel Usuario - " << identificador->get_identificador() << " |" << endl;
-    cout << "+-------------------------------+" << endl;
-    cout << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << "|" << endl;
-    cout << "|Remover Usuario             - " << CtrlIUUsu::DEL_USU << "|" << endl;
-    cout << "|Editar dados                - " << CtrlIUUsu::EDIT_USU << "|" << endl;
-    cout << "|Cadastrar Conta corrente    - " << CtrlIUUsu::REG_CONTAC << "|" << endl;
-    cout << "|Remover Conta corrente      - " << CtrlIUUsu::DEL_CONTAC << "|" << endl;
-    cout << "|Cadastrar Cartao de Credito - " << CtrlIUUsu::REG_CARTCRED << "|" << endl;
-    cout << "|Remover Cartao de Credito   - " << CtrlIUUsu::DEL_CARTCRED << "|" << endl;
-    cout << "|Sair                        - 5|" << endl;
-    cout << "+-------------------------------+" << endl;
-    cout << "|Selecione a opcao: ";
+    cout << "|Painel Usuario - " << identificador->get_identificador() << " |" << endl
+         << "+-------------------------------+" << endl
+         << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << "|" << endl
+         << "|Remover Usuario             - " << CtrlIUUsu::DEL_USU << "|" << endl
+         << "|Editar dados                - " << CtrlIUUsu::EDIT_USU << "|" << endl
+         << "|Cadastrar Conta corrente    - " << CtrlIUUsu::REG_CONTAC << "|" << endl
+         << "|Remover Conta corrente      - " << CtrlIUUsu::DEL_CONTAC << "|" << endl
+         << "|Cadastrar Cartao de Credito - " << CtrlIUUsu::REG_CARTCRED << "|" << endl
+         << "|Remover Cartao de Credito   - " << CtrlIUUsu::DEL_CARTCRED << "|" << endl
+         << "|Sair                        - 5|" << endl
+         << "+-------------------------------+" << endl
+         << "|Selecione a opcao: ";
     cin >> opt;
 
     switch (opt)
     {
     case CtrlIUUsu::DEL_USU:
-      CtrlIUUsu::deletar();
+      fim = CtrlIUUsu::deletar();
       break;
     case CtrlIUUsu::REGISTRAR:
       CtrlIUUsu::cadastrar();
@@ -327,6 +327,9 @@ void CtrlIUUsu::executa()
       break;
     case CtrlIUUsu::DEL_CARTCRED:
       CtrlIUUsu::removerCdc();
+      break;
+    case 5:
+      fim = true;
       break;
     default:
       break;
@@ -696,10 +699,11 @@ void CtrlIUUsu::cadastrar()
   }
 }
 
-void CtrlIUUsu::deletar()
+bool CtrlIUUsu::deletar()
 {
   bool fim = false;
   char resp;
+  bool resultado = false;
 
   while (!fim)
   {
@@ -714,10 +718,10 @@ void CtrlIUUsu::deletar()
 
       if (resp == 's' || resp == 'S')
       {
-        ctrl->deletarUsuario(identificador->get_identificador());
+        resultado = ctrl->deletarUsuario(identificador->get_identificador());
 
         cout << "Usuario deletado, pressione enter para retornar ao menu" << endl;
-        CtrlIUUsu::setIsLogado(true);
+        CtrlIUUsu::setIsLogado(false);
         getchar();
         getchar();
       }
@@ -735,6 +739,7 @@ void CtrlIUUsu::deletar()
       }
     }
   }
+  return resultado;
 }
 /************* CONTROLADORA DE INTERFACE DE USUARIO - USUARIO ***********/
 
@@ -837,6 +842,7 @@ void CtrlIUAcom::buscarTdAcoms()
       {
         cout << "|Acomodacao: " << listaAcomdacoes.at(i).get_titulo() << endl
              << "|Tipo: " << listaAcomdacoes.at(i).get_tipo() << endl
+             << "|Cidade: " << listaAcomdacoes.at(i).get_cidade() << "\t |Estado: " << listaAcomdacoes.at(i).get_estado() << endl
              << "|Diaria: " << listaAcomdacoes.at(i).get_diaria() << endl
              << "|Disponibilidade: " << listaAcomdacoes.at(i).get_data_disponibilidade_inicio() << " a " << listaAcomdacoes.at(i).get_data_disponibilidade_fim() << endl
              << "|Dono: " << listaAcomdacoes.at(i).get_identificador() << endl
@@ -1136,7 +1142,12 @@ void CtrlIUAcom::deletarAcom()
              << "|Titulo - " << listaAcomdacoes.at(i).get_titulo() << endl;
       }
       cout << "Selecione a acomodacao pelo numero:";
-      cin >> opt;
+
+      do
+      {
+        cin >> opt;
+      } while (opt < 0 && opt > listaAcomdacoes.size());
+
       Acomodacao acom = listaAcomdacoes.at(opt);
 
       cout << "#Confirmar remocao de acomodacao?#" << endl
@@ -1155,6 +1166,7 @@ void CtrlIUAcom::deletarAcom()
         getchar();
         getchar();
       }
+
       fim = true;
     }
     catch (const exception &e)
@@ -1194,6 +1206,9 @@ void CtrlIUAcom::cadastra()
   {
     try
     {
+      if(!ctrl->podeCadastrarAcomodacao(identificador->get_identificador()))
+        throw runtime_error("Para cadastrar uma acomodacao, primeiro cadastre uma conta corrente");
+
       system(CLEAR);
       cout << "+--------------------+" << endl
            << "|Cadastrar Acomodacao|" << endl
@@ -1258,7 +1273,8 @@ void CtrlIUAcom::cadastra()
 
       periodo_valido(dt_in_entrada, dt_fim_entrada);
 
-      cout << "#######################" << endl
+      cout << endl
+           << "#######################" << endl
            << "#Confirmar cadastro?" << endl
            << "#Titulo: " << titulo_entrada << endl
            << "#Capacidade: " << capacidade_entrada << endl
@@ -1407,8 +1423,6 @@ void CtrlServAcom::removerAcomodacao(Acomodacao acom)
   SQL_DELETE_ACOM += "dono = '" + acom.get_identificador() + "' and ";
   SQL_DELETE_ACOM += "titulo = '" + acom.get_titulo() + "';";
 
-  cout << SQL_DELETE_ACOM << endl;
-
   rc = CtrlServ::executa(SQL_DELETE_ACOM);
 
   trata_retorno(rc);
@@ -1421,7 +1435,7 @@ bool CtrlServAcom::existeAcomodacao(string titulo, string id)
 
   string SQL_SELECT_ACOMODACAO = "SELECT COUNT(*) FROM ACOMODACAO WHERE ";
   SQL_SELECT_ACOMODACAO += "titulo = '" + titulo + "' and ";
-  SQL_SELECT_ACOMODACAO == "dono = '" + id + "';";
+  SQL_SELECT_ACOMODACAO += "dono = '" + id + "';";
 
   rc = CtrlServ::executa(SQL_SELECT_ACOMODACAO);
 
@@ -1434,6 +1448,27 @@ bool CtrlServAcom::existeAcomodacao(string titulo, string id)
   }
 
   CtrlServ::finaliza();
+  return resultado;
+}
+
+bool CtrlServAcom::podeCadastrarAcomodacao(string id)
+{
+  int rc;
+  bool resultado = false;
+
+  string SQL_CADASTRAR_ACOMODACAO = "SELECT count(*) from Usuario as u, Contacorrente as cc  where ";
+  SQL_CADASTRAR_ACOMODACAO += "u.identificador = '" + id + "' and u.identificador = cc.id_usuario;";
+
+  rc = CtrlServ::executa(SQL_CADASTRAR_ACOMODACAO);
+
+  if (trata_retorno(rc))
+  {
+    sqlite3_stmt *stmt = CtrlServ::get_stmt();
+    int num = atoi((char *)sqlite3_column_text(stmt, 0));
+
+    resultado = num == 1;
+  }
+
   return resultado;
 }
 
@@ -1471,8 +1506,6 @@ bool CtrlServAcom::existeReserva(int id_acom, string dt_inicio, string dt_fim)
   SQL_SELECT_RESERVA += "data_inicio = '" + dt_inicio + "' or ";
   SQL_SELECT_RESERVA += "data_fim = '" + dt_fim + "');";
 
-  cout << SQL_SELECT_RESERVA << endl;
-
   rc = CtrlServ::executa(SQL_SELECT_RESERVA);
 
   if (trata_retorno(rc))
@@ -1496,8 +1529,6 @@ void CtrlServAcom::cadastrarReserva(string id, Acomodacao acom, string data_inic
   SQL_INSERT_RESERVA += "'" + to_string(acom.get_id_acomodacao()) + "',";
   SQL_INSERT_RESERVA += "'" + data_inicio + "',";
   SQL_INSERT_RESERVA += "'" + data_fim + "');";
-
-  cout << SQL_INSERT_RESERVA << endl;
 
   rc = CtrlServ::executa(SQL_INSERT_RESERVA);
   trata_retorno(rc);
@@ -1715,15 +1746,14 @@ void CtrlServUsu::editarUsuario(string identificador, string nome, string senha)
 
   SQL_EDIT_USUARIO += "where identificador = '" + identificador + "';";
 
-  cout << SQL_EDIT_USUARIO << endl;
-
   rc = CtrlServ::executa(SQL_EDIT_USUARIO);
   trata_retorno(rc);
 }
 
-void CtrlServUsu::deletarUsuario(string id_usu)
+bool CtrlServUsu::deletarUsuario(string id_usu)
 {
   int rc;
+  bool resultado = false;
   sqlite3_stmt *stmt;
 
   if (!CtrlServUsu::existeUsuario(id_usu))
@@ -1744,7 +1774,9 @@ void CtrlServUsu::deletarUsuario(string id_usu)
   SQL_DEL_USUARIO += "identificador = '" + id_usu + "'";
 
   rc = CtrlServ::executa(SQL_DEL_USUARIO);
-  trata_retorno(rc);
+  resultado = trata_retorno(rc);
+
+  return resultado;
 }
 
 void CtrlServUsu::deletarContaCorrente(string id)
@@ -1770,8 +1802,6 @@ bool CtrlServUsu::existeReservaEmAcomodacao(string id)
   string SQL_SELECT_ACOMODACAO_RESERVA = "SELECT COUNT(*) FROM ACOMODACAO as acom, RESERVA as resv WHERE ";
   SQL_SELECT_ACOMODACAO_RESERVA += "acom.dono = '" + id + "' and acom.id = resv.id_acomodacao;";
 
-  cout << SQL_SELECT_ACOMODACAO_RESERVA << endl;
-
   rc = CtrlServ::executa(SQL_SELECT_ACOMODACAO_RESERVA);
 
   if (trata_retorno(rc))
@@ -1780,7 +1810,7 @@ bool CtrlServUsu::existeReservaEmAcomodacao(string id)
     int num = atoi((char *)sqlite3_column_text(stmt, 0));
     resultado = num > 0;
   }
-
+  CtrlServ::finaliza();
   return resultado;
 }
 
@@ -1921,9 +1951,9 @@ Usuario *CtrlServAut::autenticar(Identificador &id, Senha &senha)
   if (trata_retorno(rc) && sqlite3_data_count(stmt) > 0)
   {
 
-    string id_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-    string nome_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
-    string senha_str(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)));
+    string id_str((char *)sqlite3_column_text(stmt, 1));
+    string nome_str((char *)sqlite3_column_text(stmt, 2));
+    string senha_str((char *)sqlite3_column_text(stmt, 3));
 
     usu = new Usuario(id_str, nome_str, senha_str);
   }
