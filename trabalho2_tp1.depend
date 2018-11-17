@@ -88,13 +88,13 @@
 	"dominios.hpp"
 	"Controladoras.hpp"
 
-1542112241 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\dominios.cpp
+1542292260 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\dominios.cpp
 	"dominios.hpp"
 	<stdexcept>
 	<vector>
 	<iostream>
 
-1541173957 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\entidades.cpp
+1542410308 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\entidades.cpp
 	"Entidades.hpp"
 
 1540001649 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\sqlite3.c
@@ -156,14 +156,14 @@
 	<ctype.h>
 	<math.h>
 
-1540001649 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\testes.cpp
+1542410308 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\testes.cpp
 	<iostream>
 	<stdexcept>
 	"dominios.hpp"
 	"Entidades.hpp"
 	"Testes.hpp"
 
-1542115887 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
+1542410308 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
 	<iostream>
 	<stdexcept>
 	<string>
@@ -192,7 +192,7 @@
 	<string>
 	<stdexcept>
 
-1542118027 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
+1542410308 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
 	"Interfaces.hpp"
 	"dominios.hpp"
 	<sqlite3.h>
@@ -200,15 +200,16 @@
 	<iostream>
 	<cstdlib>
 
-1541508534 c:\users\hiarr\documents\projetos\trab2_tp1\include\interfaces.hpp
+1542410308 c:\users\hiarr\documents\projetos\trab2_tp1\include\interfaces.hpp
 	"dominios.hpp"
 	"Entidades.hpp"
+	<vector>
 	<sqlite3.h>
 
 1540001649 c:\users\hiarr\documents\projetos\trab2_tp1\include\sqlite3.h
 	<stdarg.h>
 
-1541508534 c:\users\hiarr\documents\projetos\trab2_tp1\include\entidades.hpp
+1542410308 c:\users\hiarr\documents\projetos\trab2_tp1\include\entidades.hpp
 	<dominios.hpp>
 
 1540345382 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\name.cpp

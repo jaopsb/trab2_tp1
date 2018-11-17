@@ -41,6 +41,7 @@ class IServAcom
 {
 public:
   virtual vector<Acomodacao> buscarAcomodacoes(string) = 0;
+  virtual vector<Acomodacao> buscarAcomodacoes() = 0;
   virtual vector<Acomodacao> buscarAcomodacoesParaReserva(string id) = 0;
   virtual vector<Reserva> buscarReservas(string) = 0;
 

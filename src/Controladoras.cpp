@@ -759,7 +759,8 @@ void CtrlIUAcom::executa()
       system("cls");
       cout << "+--------------------------------------+" << endl
            << "|Cadastrar Acomodacao               - " << CtrlIUAcom::CAD_ACOM << "|" << endl
-           << "|Ver Acomodacoes                    - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
+           << "|Suas Acomodacoes                   - " << CtrlIUAcom::BUS_ACOMS << "|" << endl
+           << "|Todas Acomodacoes                  - " << CtrlIUAcom::BUS_TF_ACOMS << "|" << endl
            << "|Remover Acomodacoes                - " << CtrlIUAcom::DEL_ACOM << "|" << endl
            << "|Reservar Acomodacao por um periodo - " << CtrlIUAcom::REG_RES << "|" << endl
            << "|Ver Reservas                       - " << CtrlIUAcom::BUS_RES << "|" << endl
@@ -789,9 +790,48 @@ void CtrlIUAcom::executa()
       case CtrlIUAcom::DEL_RES:
         CtrlIUAcom::deletarReservas();
         break;
+      case CtrlIUAcom::BUS_TF_ACOMS:
+        CtrlIUAcom::buscarTdAcoms();
+        break;
       case 5:
         fim = true;
         break;
+      }
+    }
+    catch (const exception &ex)
+    {
+      cout << "ERRO - " << ex.what() << endl;
+      cout << "Deseja tentar de novo? (s/S|n/N)" << endl;
+      cin >> resp;
+      if (resp == 'N' || resp == 'n')
+      {
+        fim = true;
+      }
+    }
+  }
+}
+
+void CtrlIUAcom::buscarTdAcoms()
+{
+  char resp;
+  bool fim = false;
+  cout << "TOPZERA" << endl;
+
+  while (!fim)
+  {
+    try
+    {
+
+      vector<Acomodacao> listaAcomdacoes = ctrl->buscarAcomodacoes();
+
+      cout << "+-----------+" << endl
+           << "|Acomodacoes|" << endl
+           << "+-----------+" << endl
+           << endl;
+
+      for (int i = 0; i < listaAcomdacoes.size(); i++)
+      {
+        cout << "|Acomodacao: " << 
       }
     }
     catch (const exception &ex)
@@ -1634,7 +1674,7 @@ void CtrlServUsu::deletarUsuario(string id_usu, string id_del)
   if (!CtrlServUsu::existeUsuario(id_del))
     throw runtime_error("O Usuario nao existe!");
 
-  if (CtrlServUsu::existeAcomodacaoReservada(id_del))
+  if (CtrlServUsu::existeReservaEmAcomodacao(id_del))
     throw runtime_error("Existem reservas em acomodacoes do usuario");
 
   if (CtrlServUsu::existeContaCorrente(id_del))
@@ -1666,7 +1706,7 @@ void CtrlServUsu::deletarContaCorrente(string id)
   trata_retorno(rc);
 }
 
-bool CtrlServUsu::existeAcomodacaoReservada(string id)
+bool CtrlServUsu::existeReservaEmAcomodacao(string id)
 {
   int rc;
   bool resultado = false;
