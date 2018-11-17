@@ -83,7 +83,7 @@ public:
 
   void editarUsuario(string, string, string);
 
-  void deletarUsuario(string, string);
+  void deletarUsuario(string);
   void deletarContaCorrente(string);
   void deletarCartaodeCredito(string);
 };
@@ -95,6 +95,8 @@ private:
   Senha *senha;
   IServUsu *ctrl;
   Usuario *u;
+  bool isLogado = true;
+
   void cadastrar();
   void deletar();
   void editar();
@@ -117,12 +119,16 @@ public:
   void executa();
 
   void setCtrlServ(IServUsu *);
+
+  bool isUsuarioLogado() { return isLogado; };
+  bool setIsLogado(bool n) { isLogado = n; };
 };
 
 class CtrlServAcom : public CtrlServ, public IServAcom
 {
 private:
   bool existeReserva(int, string, string);
+  bool existeAcomodacao(string, string);
 
 public:
   vector<Acomodacao> buscarAcomodacoes(string);
@@ -156,7 +162,7 @@ public:
   CtrlIUAcom(string);
   const static int CAD_ACOM = 1;
   const static int BUS_ACOMS = 2;
-  const static int BUS_TF_ACOMS = 3
+  const static int BUS_TD_ACOMS = 3;
   const static int DEL_ACOM = 4;
   const static int REG_RES = 6;
   const static int BUS_RES = 7;
