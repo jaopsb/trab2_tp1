@@ -28,7 +28,7 @@ public:
 
   virtual Usuario *buscarUsuario(string) = 0;
   virtual Conta_corrente *buscarContaCorrente(string) = 0;
-  virtual Cartao_de_Credito *buscar_cartao(string) = 0;
+  virtual Cartao_de_Credito *buscarCartao(string) = 0;
 
   virtual void editarUsuario(string, string, string) = 0;
 
@@ -51,7 +51,7 @@ public:
   virtual void cadastrarReserva(string, Acomodacao, string, string) = 0;
   virtual void removerReserva(Reserva) = 0;
 
-  virtual bool podeCadastrarAcomodacao(string) =0;
+  virtual bool podeCadastrarAcomodacao(string) = 0;
 };
 
 #endif //INTERFACES_H

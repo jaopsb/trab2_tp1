@@ -79,7 +79,7 @@ public:
 
   Usuario *buscarUsuario(string);
   Conta_corrente *buscarContaCorrente(string);
-  Cartao_de_Credito *buscar_cartao(string);
+  Cartao_de_Credito *buscarCartao(string);
 
   void editarUsuario(string, string, string);
 
@@ -100,6 +100,7 @@ private:
   void cadastrar();
   bool deletar();
   void editar();
+  void buscarUsu();
   void cadastrarCC(); //conta corrente
   void deletarCC();
   void cadastrarCdC(); //cartao de credito
@@ -110,11 +111,12 @@ public:
   const static int REGISTRAR = 1;
   const static int DEL_USU = 2;
   const static int EDIT_USU = 3;
-  const static int REG_CONTAC = 4;
-  const static int DEL_CONTAC = 6;
-  const static int EDIT_CONTAC = 7;
-  const static int REG_CARTCRED = 8;
-  const static int DEL_CARTCRED = 9;
+  const static int BUS_USU = 4;
+  const static int REG_CONTAC = 6;
+  const static int DEL_CONTAC = 7;
+  const static int EDIT_CONTAC = 8;
+  const static int REG_CARTCRED = 9;
+  const static int DEL_CARTCRED = 10;
 
   void executa();
 

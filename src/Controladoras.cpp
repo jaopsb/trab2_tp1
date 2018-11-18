@@ -125,6 +125,27 @@ string get_tipo_acomodacao(int tipo)
   }
 }
 
+string formata_cartao(string numero)
+{
+  string resultado;
+  for (int i = 0; i < numero.length(); i++)
+  {
+    if (i >= 12)
+    {
+      resultado += numero[i];
+    }
+    else
+    {
+      resultado += '*';
+    }
+    if ((i + 1) % 4 == 0 && i < 16 && i > 0)
+    {
+      resultado += ' ';
+    }
+  }
+  return resultado;
+}
+
 void periodo_valido(string dt_inicio, string dt_fim)
 {
   int resultado;
@@ -292,16 +313,17 @@ void CtrlIUUsu::executa()
   {
     system(CLEAR);
     cout << "|Painel Usuario - " << identificador->get_identificador() << " |" << endl
-         << "+-------------------------------+" << endl
-         << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << "|" << endl
-         << "|Remover Usuario             - " << CtrlIUUsu::DEL_USU << "|" << endl
-         << "|Editar dados                - " << CtrlIUUsu::EDIT_USU << "|" << endl
-         << "|Cadastrar Conta corrente    - " << CtrlIUUsu::REG_CONTAC << "|" << endl
-         << "|Remover Conta corrente      - " << CtrlIUUsu::DEL_CONTAC << "|" << endl
-         << "|Cadastrar Cartao de Credito - " << CtrlIUUsu::REG_CARTCRED << "|" << endl
+         << "+--------------------------------+" << endl
+         << "|Cadastrar Usuario           - " << CtrlIUUsu::REGISTRAR << " |" << endl
+         << "|Remover Usuario             - " << CtrlIUUsu::DEL_USU << " |" << endl
+         << "|Editar dados                - " << CtrlIUUsu::EDIT_USU << " |" << endl
+         << "|Ver Dados do Usuario        - " << CtrlIUUsu::BUS_USU << " |" << endl
+         << "|Cadastrar Conta Corrente    - " << CtrlIUUsu::REG_CONTAC << " |" << endl
+         << "|Remover Conta Corrente      - " << CtrlIUUsu::DEL_CONTAC << " |" << endl
+         << "|Cadastrar Cartao de Credito - " << CtrlIUUsu::REG_CARTCRED << " |" << endl
          << "|Remover Cartao de Credito   - " << CtrlIUUsu::DEL_CARTCRED << "|" << endl
-         << "|Sair                        - 5|" << endl
-         << "+-------------------------------+" << endl
+         << "|Sair                        - 5 |" << endl
+         << "+--------------------------------+" << endl
          << "|Selecione a opcao: ";
     cin >> opt;
 
@@ -315,6 +337,9 @@ void CtrlIUUsu::executa()
       break;
     case CtrlIUUsu::EDIT_USU:
       CtrlIUUsu::editar();
+      break;
+    case CtrlIUUsu::BUS_USU:
+      CtrlIUUsu::buscarUsu();
       break;
     case CtrlIUUsu::REG_CONTAC:
       CtrlIUUsu::cadastrarCC();
@@ -345,6 +370,84 @@ CtrlIUUsu::CtrlIUUsu(string id, string sn)
   senha->set_senha(sn);
 }
 
+void CtrlIUUsu::buscarUsu()
+{
+  bool fim = false;
+  bool temCdc = true;
+  bool temCc = true;
+  char resp;
+  Cartao_de_Credito *cdc = NULL;
+  Conta_corrente *cc = NULL;
+  Usuario *us;
+
+  while (!fim)
+  {
+    try
+    {
+      us = ctrl->buscarUsuario(identificador->get_identificador());
+    }
+    catch (const runtime_error &rt)
+    {
+      throw rt;
+    }
+    try
+    {
+      cdc = ctrl->buscarCartao(identificador->get_identificador());
+    }
+    catch (const runtime_error &rt)
+    {
+      temCdc = false;
+    }
+    try
+    {
+      cc = ctrl->buscarContaCorrente(identificador->get_identificador());
+    }
+    catch (const runtime_error &rt)
+    {
+      temCc = false;
+    }
+    //system(CLEAR);
+
+    cout << "+----------------+" << endl
+         << "|Dados do Usuario|" << endl
+         << "+----------------+" << endl;
+    cout << "|Nome: " << us->get_nome() << endl
+         << "|identificador: " << us->get_identificador() << endl;
+    cout << "|Conta: ";
+
+    if (temCc)
+    {
+      cout << cc->get_numero() << endl
+           << "    |Agencia: " << cc->get_agencia() << endl
+           << "    |Banco: " << cc->get_banco() << endl;
+    }
+    else
+    {
+      cout << "nao ha conta cadastrada" << endl;
+    }
+    cout << "|Cartao de credito: ";
+    if (temCdc)
+    {
+      cout << endl
+           << "    |Numero: " << formata_cartao(cdc->get_numero()) << endl
+           << "    |Validade: " << cdc->get_data_validade() << endl;
+    }
+    else
+    {
+      cout << "nao ha cartao de credito cadastrado";
+    }
+    cout << endl
+         << "pressione enter para voltar ao menu";
+    getchar();
+    getchar();
+
+    delete cdc;
+    delete cc;
+    delete us;
+    fim = true;
+  }
+}
+
 void CtrlIUUsu::removerCdc()
 {
   bool fim = false;
@@ -355,7 +458,7 @@ void CtrlIUUsu::removerCdc()
   {
     try
     {
-      cdc = ctrl->buscar_cartao(u->get_identificador());
+      cdc = ctrl->buscarCartao(u->get_identificador());
       cout << "###########################" << endl
            << "#Remover Cartao?          #" << endl
            << "#Numero: " << cdc->get_numero() << " #" << endl
@@ -1206,7 +1309,7 @@ void CtrlIUAcom::cadastra()
   {
     try
     {
-      if(!ctrl->podeCadastrarAcomodacao(identificador->get_identificador()))
+      if (!ctrl->podeCadastrarAcomodacao(identificador->get_identificador()))
         throw runtime_error("Para cadastrar uma acomodacao, primeiro cadastre uma conta corrente");
 
       system(CLEAR);
@@ -1644,7 +1747,7 @@ bool CtrlServUsu::existeCartaodeCredito(string id)
   return resultado;
 }
 
-Cartao_de_Credito *CtrlServUsu::buscar_cartao(string id)
+Cartao_de_Credito *CtrlServUsu::buscarCartao(string id)
 {
   int rc;
   Cartao_de_Credito *cdc;
