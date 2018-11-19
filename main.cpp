@@ -6,11 +6,10 @@
 #include "Interfaces.hpp"
 
 #ifdef _WIN32
-	#define CLEAR "cls"
+#define CLEAR "cls"
 #else
-	#define CLEAR "clear"
+#define CLEAR "clear"
 #endif
-
 
 using namespace std;
 
@@ -62,12 +61,12 @@ int main()
       while (!fim)
       {
         system(CLEAR);
-        cout << "+-------------------------+" << endl;
-        cout << "|Gerenciar Usuario     - " << USUARIO << "|" << endl;
-        cout << "|Gerenciar Acomodacao  - " << ACOMODACAO << "|" << endl;
-        cout << "|Sair                  - " << SAIR << "|" << endl;
-        cout << "|Logout                - " << LOGOUT << "|" << endl;
-        cout << "+-------------------------+" << endl;
+        cout << "+-----------------------------+" << endl;
+        cout << "|Gerenciador de Usuario     - " << USUARIO << "|" << endl;
+        cout << "|Gerenciador de Acomodacao  - " << ACOMODACAO << "|" << endl;
+        cout << "|Sair                       - " << SAIR << "|" << endl;
+        cout << "|Logout                     - " << LOGOUT << "|" << endl;
+        cout << "+-----------------------------+" << endl;
         cout << "|Opcao:";
         cin >> opt;
 
