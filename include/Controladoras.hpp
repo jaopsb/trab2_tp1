@@ -131,6 +131,7 @@ class CtrlServAcom : public CtrlServ, public IServAcom
 private:
   bool existeReserva(int, string, string);
   bool existeAcomodacao(string, string);
+  bool podeReservar(string);
 
 public:
   vector<Acomodacao> buscarAcomodacoes(string);

@@ -1429,6 +1429,25 @@ void CtrlIUAcom::cadastra()
 
 /************* CONTROLADORA DE SERVICOS - ACOMODACAO *************/
 
+bool CtrlServAcom::podeReservar(string id)
+{
+  int rc;
+  bool resultado = false;
+
+  string SQL_SELECT_CARTAO = "SELECT * FROM CARTAO WHERE id_usuario = '" + id + "';";
+
+  rc = CtrlServAcom::executa(SQL_SELECT_CARTAO);
+
+  if (trata_retorno(rc))
+  {
+    sqlite3_stmt *stmt = CtrlServ::get_stmt();
+    resultado = atoi((char *)sqlite3_column_text(stmt, 0)) > 0;
+  }
+
+  CtrlServ::finaliza();
+  return resultado;
+}
+
 static int callbackAcomodacoes(void *data, int argc, char **argv, char **azColName)
 {
   Acomodacao acom;
@@ -1462,6 +1481,9 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoesParaReserva(string id)
 
   vector<Acomodacao> lista;
 
+  if (!CtrlServAcom::podeReservar(id))
+    throw runtime_error("Para fazer uma reserva eh necessario o cadastro de um cartao de credito.");
+
   string SQL_SELECT_ACOMODACOES = "SELECT * FROM ACOMODACAO where dono != '" + id + "';";
 
   sqlite3 *banco = CtrlServ::get_banco();
@@ -1469,6 +1491,9 @@ vector<Acomodacao> CtrlServAcom::buscarAcomodacoesParaReserva(string id)
   sqlite3_open(CtrlServ::get_nome_banco(), &banco);
 
   rc = sqlite3_exec(banco, SQL_SELECT_ACOMODACOES.c_str(), callbackAcomodacoes, &lista, &zErrMsg);
+
+  if (lista.size() == 0)
+    throw runtime_error("Nao existem Acomodacoes para reserva");
 
   return lista;
 }
@@ -1674,6 +1699,9 @@ vector<Reserva> CtrlServAcom::buscarReservas(string id)
   sqlite3_open(CtrlServ::get_nome_banco(), &banco);
 
   rc = sqlite3_exec(banco, SQL_SELECT_RESERVA.c_str(), callbackReservas, &lista, &zErrMsg);
+
+  if (lista.size() == 0)
+    throw runtime_error("Nao existem reservas feitas");
 
   return lista;
 }

@@ -339,7 +339,7 @@
 	"dominios.hpp"
 	"Controladoras.hpp"
 
-1542557533 source:c:\users\hiarr\desktop\projetos\trab2_tp1\main.cpp
+1542631674 source:c:\users\hiarr\desktop\projetos\trab2_tp1\main.cpp
 	<iostream>
 	<stdexcept>
 	<string>
@@ -347,7 +347,7 @@
 	"Controladoras.hpp"
 	"Interfaces.hpp"
 
-1542558166 c:\users\hiarr\desktop\projetos\trab2_tp1\include\controladoras.hpp
+1542932670 c:\users\hiarr\desktop\projetos\trab2_tp1\include\controladoras.hpp
 	"Interfaces.hpp"
 	"dominios.hpp"
 	<sqlite3.h>
@@ -361,7 +361,7 @@
 	<vector>
 	<sqlite3.h>
 
-1542572237 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
+1542574590 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
 	<iostream>
 	<sqlite3.h>
 	<vector>
