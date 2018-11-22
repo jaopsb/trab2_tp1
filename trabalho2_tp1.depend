@@ -163,7 +163,7 @@
 	"Entidades.hpp"
 	"Testes.hpp"
 
-1542482348 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
+1542932084 source:c:\users\hiarr\documents\projetos\trab2_tp1\main.cpp
 	<iostream>
 	<stdexcept>
 	<string>
@@ -171,7 +171,7 @@
 	"Controladoras.hpp"
 	"Interfaces.hpp"
 
-1542483456 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\controladoras.cpp
+1542932084 source:c:\users\hiarr\documents\projetos\trab2_tp1\src\controladoras.cpp
 	<iostream>
 	<sqlite3.h>
 	<vector>
@@ -192,7 +192,7 @@
 	<string>
 	<stdexcept>
 
-1542482675 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
+1542932084 c:\users\hiarr\documents\projetos\trab2_tp1\include\controladoras.hpp
 	"Interfaces.hpp"
 	"dominios.hpp"
 	<sqlite3.h>
@@ -200,7 +200,7 @@
 	<iostream>
 	<cstdlib>
 
-1542482672 c:\users\hiarr\documents\projetos\trab2_tp1\include\interfaces.hpp
+1542932084 c:\users\hiarr\documents\projetos\trab2_tp1\include\interfaces.hpp
 	"dominios.hpp"
 	"Entidades.hpp"
 	<vector>
@@ -242,7 +242,7 @@
 1542381451 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\entidades.cpp
 	"Entidades.hpp"
 
-1542384299 c:\users\hiarr\desktop\projetos\trab2_tp1\include\entidades.hpp
+1542558034 c:\users\hiarr\desktop\projetos\trab2_tp1\include\entidades.hpp
 	<dominios.hpp>
 
 1540485409 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\sqlite3.c
@@ -339,7 +339,7 @@
 	"dominios.hpp"
 	"Controladoras.hpp"
 
-1542469218 source:c:\users\hiarr\desktop\projetos\trab2_tp1\main.cpp
+1542557533 source:c:\users\hiarr\desktop\projetos\trab2_tp1\main.cpp
 	<iostream>
 	<stdexcept>
 	<string>
@@ -347,7 +347,7 @@
 	"Controladoras.hpp"
 	"Interfaces.hpp"
 
-1542469011 c:\users\hiarr\desktop\projetos\trab2_tp1\include\controladoras.hpp
+1542558166 c:\users\hiarr\desktop\projetos\trab2_tp1\include\controladoras.hpp
 	"Interfaces.hpp"
 	"dominios.hpp"
 	<sqlite3.h>
@@ -355,13 +355,13 @@
 	<iostream>
 	<cstdlib>
 
-1542469110 c:\users\hiarr\desktop\projetos\trab2_tp1\include\interfaces.hpp
+1542558153 c:\users\hiarr\desktop\projetos\trab2_tp1\include\interfaces.hpp
 	"dominios.hpp"
 	"Entidades.hpp"
 	<vector>
 	<sqlite3.h>
 
-1542386789 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
+1542572237 source:c:\users\hiarr\desktop\projetos\trab2_tp1\src\controladoras.cpp
 	<iostream>
 	<sqlite3.h>
 	<vector>
